@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TechFix | Assistência Técnica Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --roxo:        #9b5de5;
+      --roxo-claro:  #c77dff;
+      --roxo-escuro: #6a0dad;
+      --fundo:       #0a0a0f;
+      --fundo2:      #100d1a;
+      --card:        #1a1428;
+      --texto:       #f0eaff;
+      --texto-suave: #8b80a8;
+      --verde-whats: #25D366;
+      --borda:       rgba(155, 93, 229, 0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, nav .logo { font-family: 'Space Grotesk', sans-serif; }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 5%;
+      background: rgba(10,10,15,0.75);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--borda);
+    }
+    .logo {
+      font-size: 1.6rem; font-weight: 700; letter-spacing: -1px;
+      background: linear-gradient(90deg, var(--roxo-claro), var(--roxo));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo span { color: white; -webkit-text-fill-color: white; }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul a { color: var(--texto-suave); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color .2s; }
+    nav ul a:hover { color: var(--roxo-claro); }
+    .nav-cta {
+      background: var(--roxo); color: #fff; padding: .55rem 1.3rem;
+      border-radius: 8px; font-weight: 600; font-size: 0.88rem;
+      text-decoration: none; transition: background .2s, transform .15s;
+    }
+    .nav-cta:hover { background: var(--roxo-claro); transform: translateY(-1px); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
+    .hamburger span { width: 24px; height: 2px; background: var(--texto); border-radius: 2px; transition: .3s; }
+
+    /* HERO */
+    #hero {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 8rem 5% 4rem; position: relative;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(107,22,200,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(155,93,229,0.1) 0%, transparent 60%),
+        var(--fundo);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(155,93,229,0.12); border: 1px solid var(--borda);
+      border-radius: 50px; padding: .4rem 1.1rem; font-size: .82rem;
+      color: var(--roxo-claro); margin-bottom: 1.8rem; letter-spacing: .04em;
+      animation: subirFadeIn .6s ease both;
+    }
+    .hero-badge::before { content: ''; width: 7px; height: 7px; background: var(--roxo-claro); border-radius: 50%; }
+    #hero h1 {
+      font-size: clamp(2.8rem, 7vw, 5.5rem); font-weight: 700;
+      line-height: 1.07; letter-spacing: -2px; margin-bottom: 1.5rem;
+      animation: subirFadeIn .7s .1s ease both;
+    }
+    #hero h1 .destaque { color: var(--roxo-claro); }
+    #hero p {
+      max-width: 560px; margin: 0 auto 2.5rem; color: var(--texto-suave);
+      font-size: 1.1rem; line-height: 1.7; animation: subirFadeIn .7s .2s ease both;
+    }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: subirFadeIn .7s .3s ease both; }
+    .btn-primario {
+      background: linear-gradient(135deg, var(--roxo), var(--roxo-escuro));
+      color: #fff; padding: .85rem 2rem; border-radius: 10px;
+      font-weight: 700; font-size: 1rem; text-decoration: none;
+      box-shadow: 0 4px 30px rgba(107,22,200,0.4); transition: transform .2s, box-shadow .2s;
+    }
+    .btn-primario:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(107,22,200,0.6); }
+    .btn-secundario {
+      background: var(--card); color: var(--texto); padding: .85rem 2rem;
+      border-radius: 10px; font-weight: 600; font-size: 1rem;
+      text-decoration: none; border: 1px solid var(--borda); transition: border-color .2s, background .2s;
+    }
+    .btn-secundario:hover { border-color: var(--roxo); background: rgba(155,93,229,0.08); }
+    .hero-stats {
+      display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap;
+      margin-top: 4rem; animation: subirFadeIn .7s .4s ease both;
+    }
+    .stat h3 { font-size: 2rem; font-weight: 700; color: var(--roxo-claro); }
+    .stat p { font-size: .82rem; color: var(--texto-suave); margin-top: .2rem; }
+    .esfera { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
+    .esfera1 { width: 400px; height: 400px; background: rgba(107,22,200,0.15); top: -100px; left: -100px; }
+    .esfera2 { width: 300px; height: 300px; background: rgba(199,125,255,0.1); bottom: 0; right: 5%; }
+
+    /* SEÇÕES */
+    section { position: relative; padding: 5rem 5%; }
+    .secao-etiqueta {
+      display: inline-block; font-size: .78rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--roxo-claro); font-weight: 600; margin-bottom: .8rem;
+    }
+    .secao-titulo { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; letter-spacing: -1px; margin-bottom: 1rem; }
+    .secao-sub { color: var(--texto-suave); max-width: 540px; line-height: 1.7; margin-bottom: 3rem; }
+    .divisor { width: 50px; height: 3px; background: linear-gradient(90deg, var(--roxo), var(--roxo-claro)); border-radius: 2px; margin-bottom: 3rem; }
+
+    /* SERVIÇOS */
+    #servicos { background: var(--fundo2); }
+    .grade-servicos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+    .card-servico {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 16px;
+      padding: 2rem; transition: transform .25s, border-color .25s, box-shadow .25s;
+      position: relative; overflow: hidden;
+    }
+    .card-servico::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(155,93,229,0.06), transparent);
+      opacity: 0; transition: opacity .25s;
+    }
+    .card-servico:hover { transform: translateY(-5px); border-color: var(--roxo); box-shadow: 0 12px 40px rgba(107,22,200,0.2); }
+    .card-servico:hover::before { opacity: 1; }
+    .icone-servico { font-size: 2.2rem; margin-bottom: 1rem; }
+    .card-servico h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .6rem; }
+    .card-servico p { color: var(--texto-suave); font-size: .9rem; line-height: 1.6; }
+    .etiqueta-servico {
+      display: inline-block; margin-top: 1rem; font-size: .75rem;
+      background: rgba(155,93,229,0.15); color: var(--roxo-claro); padding: .25rem .7rem; border-radius: 20px;
+    }
+
+    /* GALERIA */
+    #galeria { background: var(--fundo); }
+    .grade-galeria { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .item-galeria {
+      aspect-ratio: 4/3; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--borda); background: var(--card);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; position: relative; transition: transform .25s; cursor: pointer;
+    }
+    .item-galeria:hover { transform: scale(1.03); }
+    .item-galeria .legenda {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(107,22,200,0.6), transparent);
+      display: flex; align-items: flex-end; padding: 1rem; opacity: 0; transition: opacity .25s;
+    }
+    .item-galeria:hover .legenda { opacity: 1; }
+    .item-galeria .legenda span { font-size: .85rem; font-weight: 600; color: #fff; }
+
+    /* SOBRE */
+    #sobre { background: var(--fundo2); }
+    .grade-sobre { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .texto-sobre h2 { margin-bottom: 1rem; }
+    .texto-sobre p { color: var(--texto-suave); line-height: 1.8; margin-bottom: 1rem; }
+    .lista-diferenciais { list-style: none; margin-top: 1.5rem; display: flex; flex-direction: column; gap: .7rem; }
+    .lista-diferenciais li { display: flex; align-items: center; gap: .7rem; font-size: .95rem; }
+    .lista-diferenciais li::before {
+      content: '✓'; color: var(--roxo-claro); font-weight: 800;
+      background: rgba(155,93,229,0.15); width: 24px; height: 24px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    /* COLUNA DE DEPOIMENTOS */
+    .coluna-depoimentos { display: flex; flex-direction: column; gap: 1.2rem; }
+
+    /* DEPOIMENTOS EXISTENTES */
+    .card-depoimento {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 14px;
+      padding: 1.5rem; position: relative;
+    }
+    .card-depoimento::before {
+      content: '"'; position: absolute; top: .5rem; right: 1.2rem;
+      font-size: 4rem; color: var(--roxo); opacity: .3;
+      font-family: 'Space Grotesk', sans-serif; line-height: 1;
+    }
+    .estrelas { color: #f5a623; font-size: .85rem; margin-bottom: .6rem; }
+    .card-depoimento p { color: var(--texto-suave); font-size: .9rem; line-height: 1.6; margin-bottom: 1rem; }
+    .avaliador { display: flex; align-items: center; gap: .7rem; }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--roxo), var(--roxo-escuro));
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .85rem;
+    }
+    .info-avaliador strong { font-size: .9rem; display: block; }
+    .info-avaliador span { font-size: .78rem; color: var(--texto-suave); }
+
+    /* FORMULÁRIO DE DEPOIMENTO */
+    .form-depoimento {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 16px;
+      padding: 1.8rem; margin-top: .5rem;
+    }
+    .form-depoimento h4 { font-size: 1rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--texto); }
+
+    .campo-grupo { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
+    .campo-grupo label { font-size: .82rem; color: var(--texto-suave); font-weight: 600; }
+    .campo-grupo input,
+    .campo-grupo textarea {
+      background: var(--fundo2); border: 1px solid var(--borda); border-radius: 8px;
+      padding: .65rem .9rem; color: var(--texto); font-family: 'Nunito', sans-serif;
+      font-size: .9rem; outline: none; transition: border-color .2s; resize: vertical;
+    }
+    .campo-grupo input:focus,
+    .campo-grupo textarea:focus { border-color: var(--roxo); }
+    .campo-grupo input::placeholder,
+    .campo-grupo textarea::placeholder { color: var(--texto-suave); }
+
+    /* Seletor de estrelas interativo */
+    .seletor-estrelas { display: flex; flex-direction: row-reverse; gap: .3rem; justify-content: flex-end; }
+    .seletor-estrelas input { display: none; }
+    .seletor-estrelas label {
+      font-size: 1.8rem; cursor: pointer; color: var(--borda);
+      transition: color .15s; filter: grayscale(1);
+    }
+    .seletor-estrelas input:checked ~ label,
+    .seletor-estrelas label:hover,
+    .seletor-estrelas label:hover ~ label {
+      color: #f5a623; filter: grayscale(0);
+    }
+
+    /* Upload de arquivo */
+    .area-upload {
+      border: 2px dashed var(--borda); border-radius: 10px; padding: 1rem;
+      text-align: center; cursor: pointer; transition: border-color .2s; position: relative;
+    }
+    .area-upload:hover { border-color: var(--roxo); }
+    .area-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .area-upload .upload-icone { font-size: 1.5rem; margin-bottom: .3rem; }
+    .area-upload p { font-size: .8rem; color: var(--texto-suave); }
+    .area-upload p strong { color: var(--roxo-claro); }
+    .preview-arquivo {
+      display: none; align-items: center; gap: .6rem; margin-top: .7rem;
+      background: rgba(155,93,229,0.1); padding: .5rem .8rem; border-radius: 8px;
+    }
+    .preview-arquivo.visivel { display: flex; }
+    .preview-arquivo span { font-size: .82rem; color: var(--roxo-claro); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preview-arquivo button { background: none; border: none; color: var(--texto-suave); cursor: pointer; font-size: 1rem; }
+
+    /* Botão enviar depoimento */
+    .btn-enviar-dep {
+      width: 100%; padding: .75rem; border-radius: 10px; border: none;
+      background: linear-gradient(135deg, var(--roxo), var(--roxo-escuro));
+      color: #fff; font-weight: 700; font-size: .95rem; cursor: pointer;
+      font-family: 'Nunito', sans-serif; transition: opacity .2s, transform .15s; margin-top: .5rem;
+    }
+    .btn-enviar-dep:hover { opacity: .9; transform: translateY(-1px); }
+
+    /* Mensagem de sucesso */
+    .msg-sucesso {
+      display: none; align-items: center; gap: .6rem; justify-content: center;
+      padding: .9rem; background: rgba(37,211,102,0.12); border: 1px solid rgba(37,211,102,0.3);
+      border-radius: 10px; color: #25D366; font-size: .9rem; font-weight: 600; margin-top: .8rem;
+    }
+    .msg-sucesso.visivel { display: flex; }
+
+    /* LOCALIZAÇÃO */
+    #localizacao { background: var(--fundo); }
+    .grade-localizacao { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+    .info-localizacao { display: flex; flex-direction: column; gap: 1.2rem; }
+    .card-info {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 14px;
+      padding: 1.3rem 1.5rem; display: flex; align-items: flex-start; gap: 1rem;
+    }
+    .icone-info { font-size: 1.5rem; flex-shrink: 0; }
+    .card-info strong { display: block; margin-bottom: .2rem; font-size: .95rem; }
+    .card-info span { color: var(--texto-suave); font-size: .88rem; line-height: 1.6; }
+    .area-mapa {
+      width: 100%; height: 350px; border-radius: 16px; border: 1px solid var(--borda);
+      overflow: hidden; background: var(--card);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem; color: var(--texto-suave);
+      font-size: .9rem; text-align: center;
+    }
+    .icone-mapa { font-size: 3rem; }
+
+    /* CONTATO */
+    #contato {
+      background: var(--fundo2);
+      background-image: radial-gradient(ellipse 80% 50% at 50% 100%, rgba(107,22,200,0.18) 0%, transparent 70%);
+    }
+    .area-contato { text-align: center; }
+    .area-contato .secao-titulo { margin-bottom: .5rem; }
+    .area-contato .secao-sub { margin: 0 auto 2.5rem; }
+    .cards-whatsapp { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+    .card-whatsapp {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 18px;
+      padding: 2rem 2.5rem; min-width: 260px; max-width: 320px;
+      text-align: center; transition: transform .25s, box-shadow .25s, border-color .25s;
+    }
+    .card-whatsapp:hover { transform: translateY(-5px); border-color: var(--verde-whats); box-shadow: 0 12px 40px rgba(37,211,102,0.15); }
+    .icone-whatsapp { font-size: 3rem; margin-bottom: 1rem; }
+    .card-whatsapp h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
+    .descricao-whatsapp { color: var(--texto-suave); font-size: .85rem; margin-bottom: 1.3rem; }
+    .btn-whatsapp {
+      display: inline-flex; align-items: center; gap: .6rem;
+      background: var(--verde-whats); color: #fff; padding: .75rem 1.6rem;
+      border-radius: 10px; font-weight: 700; text-decoration: none; font-size: .95rem;
+      transition: background .2s, transform .15s;
+    }
+    .btn-whatsapp:hover { background: #1ebe5d; transform: scale(1.03); }
+
+    /* FOOTER */
+    footer {
+      background: var(--fundo); border-top: 1px solid var(--borda);
+      text-align: center; padding: 2rem 5%; color: var(--texto-suave); font-size: .85rem;
+    }
+
+    /* BOTÕES FLUTUANTES */
+    .whatsapp-flutuante {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 200;
+      display: flex; flex-direction: column; gap: .7rem; align-items: flex-end;
+    }
+    .btn-flutuante {
+      width: 56px; height: 56px; border-radius: 50%; background: var(--verde-whats);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.4); text-decoration: none;
+      font-size: 1.6rem; transition: transform .2s; position: relative;
+    }
+    .btn-flutuante:hover { transform: scale(1.12); }
+    .btn-flutuante .dica {
+      position: absolute; right: 68px; background: #111; color: #fff;
+      white-space: nowrap; font-size: .78rem; padding: .3rem .7rem;
+      border-radius: 6px; pointer-events: none; opacity: 0; transition: opacity .2s;
+    }
+    .btn-flutuante:hover .dica { opacity: 1; }
+
+    /* MODAL POPUP DE ORÇAMENTO */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(5, 3, 12, 0.85);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .modal-overlay.aberto {
+      opacity: 1; pointer-events: all;
+    }
+    .modal-box {
+      background: var(--fundo2);
+      border: 1px solid var(--borda);
+      border-radius: 24px;
+      width: 100%; max-width: 680px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 2rem 2.2rem;
+      position: relative;
+      transform: translateY(30px) scale(.97);
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      scrollbar-width: thin;
+      scrollbar-color: var(--roxo) transparent;
+    }
+    .modal-overlay.aberto .modal-box {
+      transform: translateY(0) scale(1);
+    }
+    .modal-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 1.6rem; gap: 1rem;
+    }
+    .modal-header h2 { font-size: 1.3rem; font-weight: 700; }
+    .modal-header p { font-size: .85rem; color: var(--texto-suave); margin-top: .3rem; }
+    .btn-fechar-modal {
+      background: rgba(155,93,229,0.12); border: 1px solid var(--borda);
+      color: var(--texto-suave); width: 36px; height: 36px; border-radius: 50%;
+      cursor: pointer; font-size: 1.1rem; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; transition: all .2s;
+    }
+    .btn-fechar-modal:hover { background: rgba(155,93,229,0.25); color: var(--texto); }
+
+    /* Barra de progresso */
+    .barra-progresso {
+      display: flex; align-items: center; margin-bottom: 1.8rem;
+    }
+    .passo-dot {
+      display: flex; flex-direction: column; align-items: center; gap: .35rem;
+      flex: 1; position: relative;
+    }
+    .passo-dot:not(:last-child)::after {
+      content: ''; position: absolute; top: 13px; left: calc(50% + 13px);
+      width: calc(100% - 26px); height: 2px; background: var(--borda);
+      z-index: 0; transition: background .4s;
+    }
+    .passo-dot.completo:not(:last-child)::after { background: var(--roxo); }
+    .passo-circulo {
+      width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--borda);
+      background: var(--card); display: flex; align-items: center; justify-content: center;
+      font-size: .72rem; font-weight: 700; color: var(--texto-suave);
+      transition: all .3s; z-index: 1; position: relative;
+    }
+    .passo-dot.ativo .passo-circulo {
+      border-color: var(--roxo); background: var(--roxo); color: #fff;
+      box-shadow: 0 0 0 4px rgba(155,93,229,0.2);
+    }
+    .passo-dot.completo .passo-circulo { border-color: var(--roxo-claro); background: var(--roxo-claro); color: #fff; }
+    .passo-label { font-size: .68rem; color: var(--texto-suave); text-align: center; }
+    .passo-dot.ativo .passo-label { color: var(--roxo-claro); font-weight: 700; }
+
+    /* Etapas do modal */
+    .etapa-card { display: none; animation: subirFadeIn .3s ease both; }
+    .etapa-card.ativa { display: block; }
+    .etapa-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
+    .etapa-card .etapa-sub { color: var(--texto-suave); font-size: .88rem; margin-bottom: 1.4rem; }
+
+    .grade-opcoes {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: .7rem; margin-bottom: 1.4rem;
+    }
+    .opcao {
+      background: var(--card); border: 2px solid var(--borda); border-radius: 12px;
+      padding: .9rem .7rem; text-align: center; cursor: pointer;
+      transition: all .2s; user-select: none;
+    }
+    .opcao:hover { border-color: var(--roxo); background: rgba(155,93,229,0.06); }
+    .opcao.selecionada { border-color: var(--roxo-claro); background: rgba(155,93,229,0.14); }
+    .opcao .op-icone { font-size: 1.6rem; margin-bottom: .4rem; }
+    .opcao .op-nome { font-size: .82rem; font-weight: 700; color: var(--texto); }
+    .opcao .op-desc { font-size: .68rem; color: var(--texto-suave); margin-top: .15rem; }
+
+    .campo-orc { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .9rem; }
+    .campo-orc label { font-size: .8rem; color: var(--texto-suave); font-weight: 600; }
+    .campo-orc input, .campo-orc textarea {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 10px;
+      padding: .65rem .9rem; color: var(--texto); font-family: 'Nunito', sans-serif;
+      font-size: .9rem; outline: none; transition: border-color .2s; resize: vertical;
+    }
+    .campo-orc input:focus, .campo-orc textarea:focus { border-color: var(--roxo); }
+    .campo-orc input::placeholder, .campo-orc textarea::placeholder { color: var(--texto-suave); }
+    .campos-linha { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+
+    .chips-urgencia { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .chip {
+      padding: .4rem .9rem; border-radius: 50px; border: 2px solid var(--borda);
+      background: var(--card); font-size: .8rem; font-weight: 600; cursor: pointer;
+      transition: all .2s; color: var(--texto-suave);
+    }
+    .chip:hover { border-color: var(--roxo); color: var(--texto); }
+    .chip.selecionado { border-color: var(--roxo-claro); background: rgba(155,93,229,0.14); color: var(--roxo-claro); }
+
+    .nav-etapas { display: flex; gap: .8rem; justify-content: flex-end; margin-top: 1rem; }
+    .btn-voltar {
+      background: transparent; border: 1px solid var(--borda); color: var(--texto-suave);
+      padding: .65rem 1.3rem; border-radius: 10px; font-weight: 600; font-size: .88rem;
+      cursor: pointer; font-family: 'Nunito', sans-serif; transition: all .2s;
+    }
+    .btn-voltar:hover { border-color: var(--roxo); color: var(--texto); }
+    .btn-avancar {
+      background: linear-gradient(135deg, var(--roxo), var(--roxo-escuro));
+      border: none; color: #fff; padding: .65rem 1.6rem; border-radius: 10px;
+      font-weight: 700; font-size: .88rem; cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: opacity .2s, transform .15s;
+    }
+    .btn-avancar:hover { opacity: .9; transform: translateY(-1px); }
+
+    .resumo-final {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 14px;
+      padding: 1.1rem 1.3rem; margin-bottom: 1.2rem;
+    }
+    .resumo-final h4 { font-size: .82rem; color: var(--texto-suave); margin-bottom: .7rem; text-transform: uppercase; letter-spacing: .06em; }
+    .resumo-linha {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: .35rem 0; border-bottom: 1px solid var(--borda); font-size: .85rem;
+    }
+    .resumo-linha:last-child { border-bottom: none; }
+    .resumo-linha span:first-child { color: var(--texto-suave); white-space: nowrap; margin-right: .8rem; }
+    .resumo-linha span:last-child { color: var(--texto); font-weight: 600; text-align: right; }
+
+    .tecnico-cards { display: flex; gap: .8rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .tecnico-card {
+      flex: 1; min-width: 150px; background: var(--card); border: 2px solid var(--borda);
+      border-radius: 12px; padding: 1rem; cursor: pointer; transition: all .2s; text-align: center;
+    }
+    .tecnico-card:hover { border-color: var(--roxo); }
+    .tecnico-card.selecionado { border-color: var(--roxo-claro); background: rgba(155,93,229,0.1); }
+    .tecnico-card .tec-nome { font-weight: 700; font-size: .9rem; margin-bottom: .15rem; }
+    .tecnico-card .tec-num { font-size: .75rem; color: var(--texto-suave); }
+
+    .btn-enviar-orc {
+      width: 100%; padding: .8rem; border-radius: 12px; border: none;
+      background: var(--verde-whats); color: #fff; font-weight: 700; font-size: .95rem;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: background .2s, transform .15s; margin-top: .4rem;
+    }
+    .btn-enviar-orc:hover { background: #1ebe5d; transform: translateY(-1px); }
+
+    @media (max-width: 600px) {
+      .campos-linha { grid-template-columns: 1fr; }
+      .modal-box { padding: 1.4rem 1.1rem; }
+      .grade-opcoes { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ANIMAÇÕES */
+    @keyframes subirFadeIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .revelar { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .revelar.visivel { opacity: 1; transform: none; }
+
+    /* RESPONSIVO */
+    @media (max-width: 768px) {
+      nav ul, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      nav.aberto ul {
+        display: flex; flex-direction: column; position: absolute;
+        top: 70px; left: 0; width: 100%; background: var(--fundo2);
+        padding: 1.5rem 5%; gap: 1.2rem; border-bottom: 1px solid var(--borda);
+      }
+      nav.aberto .nav-cta { display: block; }
+      .grade-sobre, .grade-localizacao { grid-template-columns: 1fr; }
+      .hero-stats { gap: 1.5rem; }
+      .whatsapp-flutuante { bottom: 1rem; right: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="navbar">
+  <div class="logo">Tech<span>Fix</span></div>
+  <ul>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#galeria">Galeria</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#localizacao">Localização</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+  <a href="#contato" class="nav-cta">Falar no WhatsApp</a>
+  <button class="hamburger" onclick="document.getElementById('navbar').classList.toggle('aberto')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="esfera esfera1"></div>
+  <div class="esfera esfera2"></div>
+  <div style="position:relative;z-index:1">
+    <div class="hero-badge">Assistência Técnica Premium</div>
+    <h1>Seu computador<br>nas mãos <span class="destaque">certas.</span></h1>
+    <p>Somos especialistas em reparo de computadores e notebooks. Diagnóstico rápido, atendimento transparente e garantia em todos os serviços.</p>
+    <div class="hero-btns">
+      <a href="#contato" class="btn-primario">💬 Falar no WhatsApp</a>
+      <button class="btn-secundario" onclick="abrirModal()" style="cursor:pointer;border:none;font-family:'Nunito',sans-serif">📋 Clique aqui para um orçamento</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><h3>+2.500</h3><p>Equipamentos reparados</p></div>
+      <div class="stat"><h3>5 anos</h3><p>De experiência</p></div>
+      <div class="stat"><h3>98%</h3><p>Clientes satisfeitos</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVIÇOS -->
+<section id="servicos">
+  <div class="revelar">
+    <span class="secao-etiqueta">O que fazemos</span>
+    <h2 class="secao-titulo">Serviços especializados</h2>
+    <p class="secao-sub">Da formatação ao reparo avançado de placa-mãe, cobrimos tudo com qualidade e agilidade.</p>
+  </div>
+  <div class="grade-servicos revelar">
+    <div class="card-servico">
+      <div class="icone-servico">💻</div>
+      <h3>Reparo de Notebooks</h3>
+      <p>Tela, teclado, dobradiças, conector de carga, placa-mãe. Trabalhamos com todas as marcas.</p>
+      <span class="etiqueta-servico">Todas as marcas</span>
+    </div>
+    <div class="card-servico">
+      <div class="icone-servico">🖥️</div>
+      <h3>Computadores Desktop</h3>
+      <p>Montagem, upgrades, limpeza interna, troca de componentes e resolução de falhas de hardware.</p>
+      <span class="etiqueta-servico">Hardware & Software</span>
+    </div>
+    <div class="card-servico">
+      <div class="icone-servico">⚡</div>
+      <h3>Formatação & Reinstalação</h3>
+      <p>Windows 10/11, Linux, drivers atualizados e programas essenciais instalados.</p>
+      <span class="etiqueta-servico">Rápido & Seguro</span>
+    </div>
+    <div class="card-servico">
+      <div class="icone-servico">🛡️</div>
+      <h3>Remoção de Vírus</h3>
+      <p>Limpeza completa de malware, spyware e ransomware. Seu sistema seguro novamente.</p>
+      <span class="etiqueta-servico">Proteção total</span>
+    </div>
+    <div class="card-servico">
+      <div class="icone-servico">🔋</div>
+      <h3>Troca de Bateria</h3>
+      <p>Baterias novas e compatíveis para notebooks das principais marcas do mercado.</p>
+      <span class="etiqueta-servico">Garantia inclusa</span>
+    </div>
+    <div class="card-servico">
+      <div class="icone-servico">💾</div>
+      <h3>Recuperação de Dados</h3>
+      <p>HD com defeito, formatação acidental ou vírus — recuperamos seus arquivos importantes.</p>
+      <span class="etiqueta-servico">Alta taxa de sucesso</span>
+    </div>
+  </div>
+</section>
+
+<!-- GALERIA -->
+<section id="galeria">
+  <div class="revelar">
+    <span class="secao-etiqueta">Nosso trabalho</span>
+    <h2 class="secao-titulo">Galeria de equipamentos</h2>
+    <p class="secao-sub">Veja alguns dos reparos e projetos realizados pela nossa equipe.</p>
+  </div>
+  <div class="grade-galeria revelar">
+    <div class="item-galeria" style="background:linear-gradient(135deg,#1a1428,#2a1a4a)">
+      💻<div class="legenda"><span>Reparo de notebook Dell</span></div>
+    </div>
+    <div class="item-galeria" style="background:linear-gradient(135deg,#120e22,#1e1535)">
+      🖥️<div class="legenda"><span>Montagem desktop gamer</span></div>
+    </div>
+    <div class="item-galeria" style="background:linear-gradient(135deg,#1a1428,#2d1060)">
+      🔧<div class="legenda"><span>Manutenção preventiva</span></div>
+    </div>
+    <div class="item-galeria" style="background:linear-gradient(135deg,#110d20,#221540)">
+      ⚙️<div class="legenda"><span>Troca de tela LCD</span></div>
+    </div>
+    <div class="item-galeria" style="background:linear-gradient(135deg,#1a1428,#360f6e)">
+      🧹<div class="legenda"><span>Limpeza interna</span></div>
+    </div>
+    <div class="item-galeria" style="background:linear-gradient(135deg,#120e22,#2a0d55)">
+      🔋<div class="legenda"><span>Troca de bateria</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOBRE + DEPOIMENTOS -->
+<section id="sobre">
+  <div class="grade-sobre">
+
+    <!-- Texto institucional -->
+    <div class="texto-sobre revelar">
+      <span class="secao-etiqueta">Sobre nós</span>
+      <h2 class="secao-titulo">Experiência que<br>você pode confiar</h2>
+      <div class="divisor"></div>
+      <p>A TechFix nasceu com o compromisso de oferecer um serviço de assistência técnica honesto, ágil e de altíssima qualidade. Nossa equipe é formada por técnicos certificados com anos de experiência em hardware e software.</p>
+      <p>Acreditamos que seu equipamento merece o melhor cuidado, por isso utilizamos peças originais ou de primeira linha e oferecemos garantia em todos os serviços realizados.</p>
+      <ul class="lista-diferenciais">
+        <li>Diagnóstico gratuito na maioria dos casos</li>
+        <li>Peças com procedência e garantia</li>
+        <li>Prazo de entrega respeitado</li>
+        <li>Atendimento presencial e remoto</li>
+        <li>Técnicos certificados pelas fabricantes</li>
+      </ul>
+    </div>
+
+    <!-- Depoimentos + formulário -->
+    <div class="coluna-depoimentos revelar">
+
+      <!-- Depoimentos fixos de exemplo -->
+      <div class="card-depoimento">
+        <div class="estrelas">★★★★★</div>
+        <p>Trouxe meu notebook que estava superaquecendo e não ligava direito. Em 2 dias já estava pronto e como novo. Atendimento incrível!</p>
+        <div class="avaliador">
+          <div class="avatar">RC</div>
+          <div class="info-avaliador">
+            <strong>Rafael Costa</strong>
+            <span>Reparo de notebook</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-depoimento">
+        <div class="estrelas">★★★★★</div>
+        <p>Montaram meu PC gamer do zero com ótimo custo-benefício. Preço justo, peças de qualidade e entrega antes do prazo. Super recomendo!</p>
+        <div class="avaliador">
+          <div class="avatar">LP</div>
+          <div class="info-avaliador">
+            <strong>Lucas Pereira</strong>
+            <span>Montagem de desktop</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulário para novo depoimento -->
+      <div class="form-depoimento">
+        <h4>⭐ Deixe seu depoimento</h4>
+
+        <div class="campo-grupo">
+          <label>Seu nome</label>
+          <input type="text" id="dep-nome" placeholder="Ex: Maria Silva" maxlength="60" />
+        </div>
+
+        <div class="campo-grupo">
+          <label>Serviço utilizado</label>
+          <input type="text" id="dep-servico" placeholder="Ex: Formatação de notebook" maxlength="80" />
+        </div>
+
+        <div class="campo-grupo">
+          <label>Avaliação</label>
+          <div class="seletor-estrelas" id="seletor-estrelas">
+            <input type="radio" name="estrelas" id="e5" value="5"><label for="e5" title="5 estrelas">★</label>
+            <input type="radio" name="estrelas" id="e4" value="4"><label for="e4" title="4 estrelas">★</label>
+            <input type="radio" name="estrelas" id="e3" value="3"><label for="e3" title="3 estrelas">★</label>
+            <input type="radio" name="estrelas" id="e2" value="2"><label for="e2" title="2 estrelas">★</label>
+            <input type="radio" name="estrelas" id="e1" value="1"><label for="e1" title="1 estrela">★</label>
+            <input type="radio" name="estrelas" id="e0" value="0"><label for="e0" title="0 estrelas">★</label>
+          </div>
+        </div>
+
+        <div class="campo-grupo">
+          <label>Seu comentário</label>
+          <textarea id="dep-texto" rows="3" placeholder="Conte como foi sua experiência..."></textarea>
+        </div>
+
+        <div class="campo-grupo">
+          <label>Anexo (foto do equipamento, opcional)</label>
+          <div class="area-upload" id="area-upload">
+            <input type="file" id="dep-arquivo" accept="image/*,.pdf" onchange="mostrarPreview(this)" />
+            <div class="upload-icone">📎</div>
+            <p>Arraste ou <strong>clique para selecionar</strong></p>
+            <p style="font-size:.75rem;margin-top:.2rem">JPG, PNG ou PDF — máx. 5MB</p>
+          </div>
+          <div class="preview-arquivo" id="preview-arquivo">
+            <span id="nome-arquivo">arquivo.jpg</span>
+            <button onclick="removerArquivo()" title="Remover arquivo">✕</button>
+          </div>
+        </div>
+
+        <button class="btn-enviar-dep" onclick="enviarDepoimento()">Enviar depoimento</button>
+
+        <div class="msg-sucesso" id="msg-sucesso">
+          ✅ Depoimento enviado! Obrigado pela avaliação.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- LOCALIZAÇÃO -->
+<section id="localizacao">
+  <div class="revelar">
+    <span class="secao-etiqueta">Onde estamos</span>
+    <h2 class="secao-titulo">Nos encontre facilmente</h2>
+    <p class="secao-sub">Atendemos em Curitiba e região. Agende pelo WhatsApp!</p>
+  </div>
+  <div class="grade-localizacao revelar">
+    <div class="info-localizacao">
+
+      <div class="card-info">
+        <div class="icone-info">📍</div>
+        <div>
+          <strong>Área de Atendimento</strong>
+          <span>Curitiba e Região Metropolitana</span>
+        </div>
+      </div>
+
+      <div class="card-info">
+        <div class="icone-info">🕐</div>
+        <div>
+          <strong>Horário de Atendimento</strong>
+          <span>Segunda a Sexta: 8h às 18h<br>Sábado: 8h às 13h</span>
+        </div>
+      </div>
+
+      <div class="card-info">
+        <div class="icone-info">📞</div>
+        <div>
+          <strong>Telefones</strong>
+          <span>(41) 99991-1181 — Reginaldo<br>(19) 99739-7612 — Leonardo</span>
+        </div>
+      </div>
+
+      <!--
+        E-MAIL — descomente abaixo quando quiser adicionar:
+
+      <div class="card-info">
+        <div class="icone-info">✉️</div>
+        <div>
+          <strong>E-mail</strong>
+          <span>contato@techfix.com.br</span>
+        </div>
+      </div>
+      -->
+
+    </div>
+
+    <!--
+      GOOGLE MAPS — Como adicionar:
+      1. Acesse maps.google.com e pesquise seu endereço
+      2. Clique em Compartilhar → Incorporar um mapa
+      3. Copie o <iframe> gerado e substitua a div abaixo
+      4. Adicione no iframe: style="border-radius:16px;border:0;width:100%;height:350px;"
+    -->
+    <div class="area-mapa">
+      <div class="icone-mapa">🗺️</div>
+      <div>
+        <strong>Insira seu Google Maps aqui</strong><br>
+        <small style="color:var(--texto-suave)">
+          Google Maps → Compartilhar → Incorporar um mapa<br>
+          e substitua esta div pelo &lt;iframe&gt; gerado.
+        </small>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTATO -->
+<section id="contato">
+  <div class="area-contato">
+    <div class="revelar">
+      <span class="secao-etiqueta">Fale conosco</span>
+      <h2 class="secao-titulo">Atendimento pelo WhatsApp</h2>
+      <p class="secao-sub">Escolha o canal ideal para seu atendimento. Respondemos rapidamente!</p>
+    </div>
+    <div class="cards-whatsapp revelar">
+
+      <!-- Número 1: (41) 99991-1181 — Reginaldo -->
+      <div class="card-whatsapp">
+        <div class="icone-whatsapp">💬</div>
+        <h3>Reginaldo</h3>
+        <p class="descricao-whatsapp">Para dúvidas, orçamentos e reparos residenciais</p>
+        <a href="https://wa.me/5541999911181?text=Ol%C3%A1%2C%20Reginaldo!%20Gostaria%20de%20um%20or%C3%A7amento%20para%20reparo%20do%20meu%20equipamento." target="_blank" rel="noopener" class="btn-whatsapp">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          (41) 99991-1181
+        </a>
+      </div>
+
+      <!-- Número 2: (19) 99739-7612 — Leonardo -->
+      <div class="card-whatsapp">
+        <div class="icone-whatsapp">🏢</div>
+        <h3>Leonardo</h3>
+        <p class="descricao-whatsapp">Para contratos, manutenção preventiva e suporte corporativo</p>
+        <a href="https://wa.me/5519997397612?text=Ol%C3%A1%2C%20Leonardo!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20atendimento%20empresarial." target="_blank" rel="noopener" class="btn-whatsapp">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          (19) 99739-7612
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- MODAL POPUP DE ORÇAMENTO RÁPIDO -->
+<div class="modal-overlay" id="modal-orcamento" onclick="fecharModalFora(event)">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-label="Orçamento rápido">
+
+    <!-- Cabeçalho -->
+    <div class="modal-header">
+      <div>
+        <h2>📋 Orçamento Rápido</h2>
+        <p>Preencha em 1 minuto e receba retorno pelo WhatsApp</p>
+      </div>
+      <button class="btn-fechar-modal" onclick="fecharModal()" aria-label="Fechar">✕</button>
+    </div>
+
+    <!-- Barra de progresso -->
+    <div class="barra-progresso">
+      <div class="passo-dot ativo" id="dot-1"><div class="passo-circulo">1</div><span class="passo-label">Dispositivo</span></div>
+      <div class="passo-dot"       id="dot-2"><div class="passo-circulo">2</div><span class="passo-label">Serviço</span></div>
+      <div class="passo-dot"       id="dot-3"><div class="passo-circulo">3</div><span class="passo-label">Seus dados</span></div>
+      <div class="passo-dot"       id="dot-4"><div class="passo-circulo">4</div><span class="passo-label">Enviar</span></div>
+    </div>
+
+    <!-- ETAPA 1: Dispositivo -->
+    <div class="etapa-card ativa" id="etapa-1">
+      <h3>Qual é o seu dispositivo?</h3>
+      <p class="etapa-sub">Selecione o equipamento que precisa de atenção</p>
+      <div class="grade-opcoes">
+        <div class="opcao" onclick="selecionarOpcao(this,'dispositivo')">
+          <div class="op-icone">💻</div>
+          <div class="op-nome">Notebook</div>
+          <div class="op-desc">Qualquer marca</div>
+        </div>
+        <div class="opcao" onclick="selecionarOpcao(this,'dispositivo')">
+          <div class="op-icone">🖥️</div>
+          <div class="op-nome">Desktop</div>
+          <div class="op-desc">Torre ou all-in-one</div>
+        </div>
+        <div class="opcao" onclick="selecionarOpcao(this,'dispositivo')">
+          <div class="op-icone">⌨️</div>
+          <div class="op-nome">Montagem PC</div>
+          <div class="op-desc">Do zero</div>
+        </div>
+        <div class="opcao" onclick="selecionarOpcao(this,'dispositivo')">
+          <div class="op-icone">🖨️</div>
+          <div class="op-nome">Impressora</div>
+          <div class="op-desc">Ink ou laser</div>
+        </div>
+        <div class="opcao" onclick="selecionarOpcao(this,'dispositivo')">
+          <div class="op-icone">📱</div>
+          <div class="op-nome">Outro</div>
+          <div class="op-desc">Periférico etc.</div>
+        </div>
+      </div>
+      <div class="nav-etapas">
+        <button class="btn-avancar" onclick="avancar(1)">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ETAPA 2: Serviço -->
+    <div class="etapa-card" id="etapa-2">
+      <h3>Qual serviço você precisa?</h3>
+      <p class="etapa-sub">Pode selecionar mais de um</p>
+      <div class="grade-opcoes">
+        <div class="opcao multiplo" onclick="toggleOpcao(this)">
+          <div class="op-icone">🔧</div>
+          <div class="op-nome">Reparo de hardware</div>
+          <div class="op-desc">Tela, placa, fonte...</div>
+        </div>
+        <div class="opcao multiplo" onclick="toggleOpcao(this)">
+          <div class="op-icone">⚡</div>
+          <div class="op-nome">Formatação</div>
+          <div class="op-desc">Windows, Linux</div>
+        </div>
+        <div class="opcao multiplo" onclick="toggleOpcao(this)">
+          <div class="op-icone">🛡️</div>
+          <div class="op-nome">Remoção de vírus</div>
+          <div class="op-desc">Malware e spyware</div>
+        </div>
+        <div class="opcao multiplo" onclick="toggleOpcao(this)">
+          <div class="op-icone">🔋</div>
+          <div class="op-nome">Troca de bateria</div>
+          <div class="op-desc">Não segura carga</div>
+        </div>
+        <div class="opcao multiplo" onclick="toggleOpcao(this)">
+          <div class="op-icone">💾</div>
+          <div class="op-nome">Recuperação de dados</div>
+          <div class="op-desc">HD, SSD, pendrive</div>
+        </div>
+        <div class="opcao multiplo" onclick="toggleOpcao(this)">
+          <div class="op-icone">🧹</div>
+          <div class="op-nome">Limpeza interna</div>
+          <div class="op-desc">Superaquecimento</div>
+        </div>
+        <div class="opcao multiplo" onclick="toggleOpcao(this)">
+          <div class="op-icone">📈</div>
+          <div class="op-nome">Upgrade</div>
+          <div class="op-desc">RAM, SSD, GPU</div>
+        </div>
+        <div class="opcao multiplo" onclick="toggleOpcao(this)">
+          <div class="op-icone">🌐</div>
+          <div class="op-nome">Rede / Internet</div>
+          <div class="op-desc">Wi-Fi, roteador</div>
+        </div>
+      </div>
+      <div class="nav-etapas">
+        <button class="btn-voltar" onclick="voltar(2)">← Voltar</button>
+        <button class="btn-avancar" onclick="avancar(2)">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ETAPA 3: Dados do cliente -->
+    <div class="etapa-card" id="etapa-3">
+      <h3>Seus dados e o problema</h3>
+      <p class="etapa-sub">Assim já chegamos com seu prontuário completo</p>
+
+      <div class="campos-linha">
+        <div class="campo-orc">
+          <label>Nome completo *</label>
+          <input type="text" id="orc-nome" placeholder="Seu nome" maxlength="80" />
+        </div>
+        <div class="campo-orc">
+          <label>WhatsApp *</label>
+          <input type="tel" id="orc-tel" placeholder="(41) 99999-0000" maxlength="20" />
+        </div>
+      </div>
+
+      <div class="campos-linha">
+        <div class="campo-orc">
+          <label>Marca do equipamento</label>
+          <input type="text" id="orc-marca" placeholder="Ex: Dell, Lenovo, Samsung..." maxlength="60" />
+        </div>
+        <div class="campo-orc">
+          <label>Modelo (se souber)</label>
+          <input type="text" id="orc-modelo" placeholder="Ex: Inspiron 15..." maxlength="60" />
+        </div>
+      </div>
+
+      <div class="campo-orc">
+        <label>Descreva o problema *</label>
+        <textarea id="orc-problema" rows="3" placeholder="Ex: Não liga, tela piscando, travando muito..."></textarea>
+      </div>
+
+      <div class="campo-orc">
+        <label>Urgência</label>
+        <div class="chips-urgencia">
+          <div class="chip" onclick="selecionarChip(this,'urgencia')">🟢 Sem pressa</div>
+          <div class="chip" onclick="selecionarChip(this,'urgencia')">🟡 Esta semana</div>
+          <div class="chip" onclick="selecionarChip(this,'urgencia')">🔴 Urgente</div>
+        </div>
+      </div>
+
+      <div class="campo-orc">
+        <label>Bairro / Cidade</label>
+        <input type="text" id="orc-local" placeholder="Ex: Bairro Água Verde, Curitiba" maxlength="80" />
+      </div>
+
+      <div class="nav-etapas">
+        <button class="btn-voltar" onclick="voltar(3)">← Voltar</button>
+        <button class="btn-avancar" onclick="avancar(3)">Ver resumo →</button>
+      </div>
+    </div>
+
+    <!-- ETAPA 4: Resumo + envio -->
+    <div class="etapa-card" id="etapa-4">
+      <h3>Resumo do seu pedido</h3>
+      <p class="etapa-sub">Confira tudo e escolha para qual técnico enviar</p>
+
+      <div class="resumo-final" id="resumo-final"></div>
+
+      <div class="campo-orc">
+        <label>Responsável pelo seu atendimento</label>
+        <div class="tecnico-cards">
+          <div class="tecnico-card selecionado" onclick="selecionarTecnico(this,'5541999911181','Reginaldo')">
+            <div style="font-size:1.4rem;margin-bottom:.3rem">💬</div>
+            <div class="tec-nome">Reginaldo</div>
+            <div class="tec-num">(41) 99991-1181</div>
+          </div>
+          <div class="tecnico-card" onclick="selecionarTecnico(this,'5519997397612','Leonardo')">
+            <div style="font-size:1.4rem;margin-bottom:.3rem">🏢</div>
+            <div class="tec-nome">Leonardo</div>
+            <div class="tec-num">(19) 99739-7612</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:1rem">
+        <button class="btn-voltar" onclick="voltar(4)">← Editar</button>
+        <button class="btn-enviar-orc" onclick="enviarOrcamento()" style="flex:1;min-width:200px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar prontuário pelo WhatsApp
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 <strong>TechFix</strong> — Assistência Técnica em Computadores e Notebooks — Curitiba e Região. Todos os direitos reservados.</p>
+  <p style="margin-top:.4rem">Feito com 💜 para servir melhor você.</p>
+</footer>
+
+<!-- BOTÕES FLUTUANTES DE WHATSAPP -->
+<div class="whatsapp-flutuante">
+  <a href="https://wa.me/5541999911181?text=Ol%C3%A1!%20Gostaria%20de%20um%20or%C3%A7amento." target="_blank" rel="noopener" class="btn-flutuante" aria-label="WhatsApp Suporte Geral">
+    <span class="dica">Reginaldo</span>💬
+  </a>
+  <a href="https://wa.me/5519997397612?text=Ol%C3%A1%2C%20Leonardo!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20empresariais." target="_blank" rel="noopener" class="btn-flutuante" aria-label="WhatsApp Leonardo">
+    <span class="dica">Leonardo</span>🏢
+  </a>
+</div>
+
+<script>
+  /* ── SUPABASE — credenciais ── */
+  const SUPA_URL = 'https://pfigjyvhczzvcjseueoa.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaWdqeXZoY3p6dmNqc2V1ZW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTE1NTEsImV4cCI6MjA4NzQyNzU1MX0.tl8aNDsA8ITt50oielqRz5Oja6xjLIR2xT8Khk3AqGk';
+
+  async function supaInsert(tabela, dados) {
+    try {
+      await fetch(`${SUPA_URL}/rest/v1/${tabela}`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY,
+          'Authorization': `Bearer ${SUPA_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(dados)
+      });
+    } catch(e) { console.warn('Supabase offline, dados não salvos:', e); }
+  }
+
+  /* Garante ou cria o cliente e retorna o ID */
+  async function garantirCliente(nome, whatsapp, cidade) {
+    try {
+      const wppLimpo = whatsapp.replace(/\D/g,'');
+      /* Tenta buscar cliente existente pelo WhatsApp */
+      const busca = await fetch(
+        `${SUPA_URL}/rest/v1/clientes?whatsapp=eq.${wppLimpo}&select=id&limit=1`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
+      );
+      const lista = await busca.json();
+      if (lista && lista.length > 0) return lista[0].id;
+
+      /* Cria novo cliente */
+      const cria = await fetch(`${SUPA_URL}/rest/v1/clientes`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
+          'Content-Type': 'application/json', 'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({ nome, whatsapp: wppLimpo, cidade })
+      });
+      const novo = await cria.json();
+      return novo[0]?.id || null;
+    } catch(e) { return null; }
+  }
+
+  /* ── Revelar ao rolar ── */
+  const observador = new IntersectionObserver((entradas) => {
+    entradas.forEach(e => { if (e.isIntersecting) e.target.classList.add('visivel'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.revelar').forEach(el => observador.observe(el));
+
+  /* ── MODAL DE ORÇAMENTO ── */
+  const orc = {
+    etapa: 1, dispositivo: '', servicos: [],
+    nome: '', tel: '', marca: '', modelo: '', problema: '', urgencia: '', local: '',
+    tecnico: '5541999911181', tecnicoNome: 'Reginaldo'
+  };
+
+  function abrirModal() {
+    document.getElementById('modal-orcamento').classList.add('aberto');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function fecharModal() {
+    document.getElementById('modal-orcamento').classList.remove('aberto');
+    document.body.style.overflow = '';
+  }
+
+  function fecharModalFora(e) {
+    if (e.target === document.getElementById('modal-orcamento')) fecharModal();
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal(); });
+
+  function selecionarOpcao(el, campo) {
+    el.closest('.grade-opcoes').querySelectorAll('.opcao:not(.multiplo)').forEach(o => o.classList.remove('selecionada'));
+    el.classList.add('selecionada');
+    orc[campo] = el.querySelector('.op-nome').textContent.trim();
+  }
+
+  function toggleOpcao(el) {
+    el.classList.toggle('selecionada');
+    const nome = el.querySelector('.op-nome').textContent.trim();
+    if (el.classList.contains('selecionada')) {
+      if (!orc.servicos.includes(nome)) orc.servicos.push(nome);
+    } else {
+      orc.servicos = orc.servicos.filter(s => s !== nome);
+    }
+  }
+
+  function selecionarChip(el, campo) {
+    el.closest('.chips-urgencia').querySelectorAll('.chip').forEach(c => c.classList.remove('selecionado'));
+    el.classList.add('selecionado');
+    orc[campo] = el.textContent.trim();
+  }
+
+  function selecionarTecnico(el, num, nome) {
+    document.querySelectorAll('.tecnico-card').forEach(c => c.classList.remove('selecionado'));
+    el.classList.add('selecionado');
+    orc.tecnico = num;
+    orc.tecnicoNome = nome;
+  }
+
+  function avancar(de) {
+    if (de === 1 && !orc.dispositivo) { alert('Selecione o tipo de dispositivo para continuar.'); return; }
+    if (de === 2 && orc.servicos.length === 0) { alert('Selecione ao menos um serviço.'); return; }
+    if (de === 3) {
+      orc.nome     = document.getElementById('orc-nome').value.trim();
+      orc.tel      = document.getElementById('orc-tel').value.trim();
+      orc.marca    = document.getElementById('orc-marca').value.trim();
+      orc.modelo   = document.getElementById('orc-modelo').value.trim();
+      orc.problema = document.getElementById('orc-problema').value.trim();
+      orc.local    = document.getElementById('orc-local').value.trim();
+      if (!orc.nome || !orc.tel || !orc.problema) {
+        alert('Preencha nome, WhatsApp e descrição do problema para continuar.'); return;
+      }
+      montarResumo();
+    }
+    irParaEtapa(de + 1);
+  }
+
+  function voltar(de) { irParaEtapa(de - 1); }
+
+  function irParaEtapa(n) {
+    document.querySelectorAll('.etapa-card').forEach(e => e.classList.remove('ativa'));
+    document.getElementById('etapa-' + n).classList.add('ativa');
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById('dot-' + i);
+      dot.classList.remove('ativo', 'completo');
+      if (i < n) dot.classList.add('completo');
+      if (i === n) dot.classList.add('ativo');
+    }
+    orc.etapa = n;
+    document.querySelector('.modal-box').scrollTop = 0;
+  }
+
+  function montarResumo() {
+    document.getElementById('resumo-final').innerHTML = `
+      <h4>📋 Prontuário do cliente</h4>
+      <div class="resumo-linha"><span>👤 Nome</span><span>${esc(orc.nome)}</span></div>
+      <div class="resumo-linha"><span>📞 WhatsApp</span><span>${esc(orc.tel)}</span></div>
+      <div class="resumo-linha"><span>📍 Localização</span><span>${esc(orc.local || 'Não informado')}</span></div>
+      <div class="resumo-linha"><span>💻 Dispositivo</span><span>${esc(orc.dispositivo)}</span></div>
+      <div class="resumo-linha"><span>🏷️ Marca / Modelo</span><span>${esc(orc.marca || '—')} / ${esc(orc.modelo || '—')}</span></div>
+      <div class="resumo-linha"><span>🔧 Serviços</span><span>${orc.servicos.map(esc).join(', ')}</span></div>
+      <div class="resumo-linha"><span>⚠️ Problema</span><span>${esc(orc.problema)}</span></div>
+      <div class="resumo-linha"><span>⏱️ Urgência</span><span>${esc(orc.urgencia || 'Não informada')}</span></div>
+    `;
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function enviarOrcamento() {
+    /* Salva no Supabase antes de abrir o WhatsApp */
+    const btnEnviar = document.querySelector('.btn-enviar-orc');
+    if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = 'Salvando...'; }
+
+    const clienteId = await garantirCliente(orc.nome, orc.tel, orc.local);
+
+    await supaInsert('orcamentos', {
+      cliente_id:  clienteId,
+      dispositivo: orc.dispositivo,
+      marca:       orc.marca || null,
+      modelo:      orc.modelo || null,
+      servicos:    orc.servicos,
+      problema:    orc.problema,
+      urgencia:    orc.urgencia || null,
+      tecnico:     orc.tecnicoNome,
+      status:      'novo'
+    });
+
+    /* Monta e abre o WhatsApp */
+    const msg = [
+      `🛠️ *SOLICITAÇÃO DE ORÇAMENTO — TechFix*`,
+      ``,
+      `👤 *Nome:* ${orc.nome}`,
+      `📞 *WhatsApp:* ${orc.tel}`,
+      `📍 *Localização:* ${orc.local || 'Não informado'}`,
+      ``,
+      `💻 *Dispositivo:* ${orc.dispositivo}`,
+      `🏷️ *Marca / Modelo:* ${orc.marca || '—'} / ${orc.modelo || '—'}`,
+      ``,
+      `🔧 *Serviços solicitados:*`,
+      orc.servicos.map(s => `  • ${s}`).join('\n'),
+      ``,
+      `⚠️ *Problema relatado:*`,
+      orc.problema,
+      ``,
+      `⏱️ *Urgência:* ${orc.urgencia || 'Não informada'}`,
+      ``,
+      `_Mensagem gerada pelo site TechFix_`
+    ].join('\n');
+
+    window.open(`https://wa.me/${orc.tecnico}?text=${encodeURIComponent(msg)}`, '_blank');
+    fecharModal();
+    if (btnEnviar) { btnEnviar.disabled = false; btnEnviar.innerHTML = '✅ Enviado! Abrindo WhatsApp...'; }
+  }
+
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').style.background =
+      window.scrollY > 50 ? 'rgba(10,10,15,0.95)' : 'rgba(10,10,15,0.75)';
+  });
+
+  /* Preview do arquivo anexado */
+  function mostrarPreview(input) {
+    if (!input.files || !input.files[0]) return;
+    const arquivo = input.files[0];
+    if (arquivo.size > 5 * 1024 * 1024) {
+      alert('O arquivo deve ter no máximo 5MB.');
+      input.value = '';
+      return;
+    }
+    document.getElementById('nome-arquivo').textContent = arquivo.name;
+    document.getElementById('preview-arquivo').classList.add('visivel');
+  }
+
+  /* Remover arquivo selecionado */
+  function removerArquivo() {
+    document.getElementById('dep-arquivo').value = '';
+    document.getElementById('preview-arquivo').classList.remove('visivel');
+    document.getElementById('nome-arquivo').textContent = '';
+  }
+
+  /* Enviar depoimento — salva no Supabase e exibe na página */
+  async function enviarDepoimento() {
+    const nome    = document.getElementById('dep-nome').value.trim();
+    const servico = document.getElementById('dep-servico').value.trim();
+    const texto   = document.getElementById('dep-texto').value.trim();
+    const estrela = document.querySelector('input[name="estrelas"]:checked');
+
+    if (!nome || !texto || !estrela) {
+      alert('Por favor, preencha seu nome, avaliação em estrelas e o comentário.');
+      return;
+    }
+
+    const qtd = parseInt(estrela.value);
+    const estrelasMarcadas = '★'.repeat(qtd) + '☆'.repeat(5 - qtd) || '☆☆☆☆☆';
+
+    /* Salva no banco — aprovado: false (admin precisa aprovar no painel) */
+    await supaInsert('depoimentos', {
+      nome,
+      servico_desc: servico || null,
+      texto,
+      estrelas: qtd,
+      aprovado: false
+    });
+
+    /* Cria o novo card visualmente na página */
+    const iniciais = nome.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+    const novoCard = document.createElement('div');
+    novoCard.className = 'card-depoimento';
+    novoCard.style.animation = 'subirFadeIn .5s ease both';
+    novoCard.innerHTML = `
+      <div class="estrelas">${estrelasMarcadas}</div>
+      <p>${texto.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>
+      <div class="avaliador">
+        <div class="avatar">${iniciais}</div>
+        <div class="info-avaliador">
+          <strong>${nome.replace(/</g,'&lt;')}</strong>
+          <span>${servico ? servico.replace(/</g,'&lt;') : 'Cliente'}</span>
+        </div>
+      </div>
+    `;
+
+    const form = document.querySelector('.form-depoimento');
+    form.parentNode.insertBefore(novoCard, form);
+
+    /* Limpa o formulário */
+    document.getElementById('dep-nome').value = '';
+    document.getElementById('dep-servico').value = '';
+    document.getElementById('dep-texto').value = '';
+    document.querySelectorAll('input[name="estrelas"]').forEach(r => r.checked = false);
+    removerArquivo();
+
+    /* Exibe mensagem de sucesso */
+    const msg = document.getElementById('msg-sucesso');
+    msg.classList.add('visivel');
+    setTimeout(() => msg.classList.remove('visivel'), 4000);
+  }
+</script>
+
+</body>
+</html>
