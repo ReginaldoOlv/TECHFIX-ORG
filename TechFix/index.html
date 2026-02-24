@@ -512,6 +512,7 @@
     }
 
     /* ANIMAÇÕES */
+    @keyframes girar { to { transform: rotate(360deg); } }
     @keyframes subirFadeIn {
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -545,6 +546,7 @@
     <li><a href="#sobre">Sobre</a></li>
     <li><a href="#localizacao">Localização</a></li>
     <li><a href="#contato">Contato</a></li>
+    <li><a href="acompanhar.html" style="color:var(--roxo-claro)">📦 Meu serviço</a></li>
   </ul>
   <a href="#contato" class="nav-cta">Falar no WhatsApp</a>
   <button class="hamburger" onclick="document.getElementById('navbar').classList.toggle('aberto')" aria-label="Menu">
@@ -671,28 +673,11 @@
     <!-- Depoimentos + formulário -->
     <div class="coluna-depoimentos revelar">
 
-      <!-- Depoimentos fixos de exemplo -->
-      <div class="card-depoimento">
-        <div class="estrelas">★★★★★</div>
-        <p>Trouxe meu notebook que estava superaquecendo e não ligava direito. Em 2 dias já estava pronto e como novo. Atendimento incrível!</p>
-        <div class="avaliador">
-          <div class="avatar">RC</div>
-          <div class="info-avaliador">
-            <strong>Rafael Costa</strong>
-            <span>Reparo de notebook</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-depoimento">
-        <div class="estrelas">★★★★★</div>
-        <p>Montaram meu PC gamer do zero com ótimo custo-benefício. Preço justo, peças de qualidade e entrega antes do prazo. Super recomendo!</p>
-        <div class="avaliador">
-          <div class="avatar">LP</div>
-          <div class="info-avaliador">
-            <strong>Lucas Pereira</strong>
-            <span>Montagem de desktop</span>
-          </div>
+      <!-- Depoimentos aprovados carregados do banco -->
+      <div id="deps-aprovados">
+        <div style="text-align:center;padding:1rem;color:var(--texto-suave);font-size:.85rem">
+          <span style="display:inline-block;width:16px;height:16px;border:2px solid var(--borda);border-top-color:var(--roxo);border-radius:50%;animation:girar .7s linear infinite;vertical-align:middle;margin-right:.4rem"></span>
+          Carregando avaliações...
         </div>
       </div>
 
@@ -1074,46 +1059,97 @@
   const SUPA_URL = 'https://pfigjyvhczzvcjseueoa.supabase.co';
   const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaWdqeXZoY3p6dmNqc2V1ZW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTE1NTEsImV4cCI6MjA4NzQyNzU1MX0.tl8aNDsA8ITt50oielqRz5Oja6xjLIR2xT8Khk3AqGk';
 
+  const HDRS = {
+    'apikey':        SUPA_KEY,
+    'Authorization': `Bearer ${SUPA_KEY}`,
+    'Content-Type':  'application/json'
+  };
+
   async function supaInsert(tabela, dados) {
     try {
-      await fetch(`${SUPA_URL}/rest/v1/${tabela}`, {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${tabela}`, {
         method: 'POST',
-        headers: {
-          'apikey': SUPA_KEY,
-          'Authorization': `Bearer ${SUPA_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
+        headers: { ...HDRS, 'Prefer': 'return=representation' },
         body: JSON.stringify(dados)
       });
-    } catch(e) { console.warn('Supabase offline, dados não salvos:', e); }
+      const json = await r.json();
+      if (!r.ok) console.error(`[Supabase] Erro em ${tabela}:`, json);
+      return Array.isArray(json) ? json[0] : null;
+    } catch(e) {
+      console.error('[Supabase] Fetch erro:', e);
+      return null;
+    }
   }
 
-  /* Garante ou cria o cliente e retorna o ID */
   async function garantirCliente(nome, whatsapp, cidade) {
     try {
-      const wppLimpo = whatsapp.replace(/\D/g,'');
-      /* Tenta buscar cliente existente pelo WhatsApp */
-      const busca = await fetch(
-        `${SUPA_URL}/rest/v1/clientes?whatsapp=eq.${wppLimpo}&select=id&limit=1`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
-      );
-      const lista = await busca.json();
-      if (lista && lista.length > 0) return lista[0].id;
+      const wpp = (whatsapp || '').replace(/\D/g, '');
 
-      /* Cria novo cliente */
-      const cria = await fetch(`${SUPA_URL}/rest/v1/clientes`, {
+      // 1. Busca cliente existente
+      const r1 = await fetch(
+        `${SUPA_URL}/rest/v1/clientes?whatsapp=eq.${wpp}&select=id&limit=1`,
+        { headers: HDRS }
+      );
+      const lista1 = await r1.json();
+      if (Array.isArray(lista1) && lista1.length > 0) return lista1[0].id;
+
+      // 2. Cria novo cliente
+      const r2 = await fetch(`${SUPA_URL}/rest/v1/clientes`, {
         method: 'POST',
-        headers: {
-          'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
-          'Content-Type': 'application/json', 'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({ nome, whatsapp: wppLimpo, cidade })
+        headers: { ...HDRS, 'Prefer': 'return=representation,resolution=ignore-duplicates' },
+        body: JSON.stringify({ nome, whatsapp: wpp, cidade: cidade || null })
       });
-      const novo = await cria.json();
-      return novo[0]?.id || null;
-    } catch(e) { return null; }
+      const criado = await r2.json();
+      if (Array.isArray(criado) && criado.length > 0) return criado[0].id;
+
+      // 3. Se duplicado ignorado, busca novamente
+      const r3 = await fetch(
+        `${SUPA_URL}/rest/v1/clientes?whatsapp=eq.${wpp}&select=id&limit=1`,
+        { headers: HDRS }
+      );
+      const lista3 = await r3.json();
+      return Array.isArray(lista3) && lista3.length > 0 ? lista3[0].id : null;
+    } catch(e) {
+      console.error('[Supabase] garantirCliente erro:', e);
+      return null;
+    }
   }
+
+  /* ── Carregar depoimentos aprovados do banco ── */
+  async function carregarDepoimentos() {
+    try {
+      const r = await fetch(
+        `${SUPA_URL}/rest/v1/depoimentos?aprovado=eq.true&order=criado_em.desc`,
+        { headers: HDRS }
+      );
+      const lista = await r.json();
+      const container = document.getElementById('deps-aprovados');
+      if (!Array.isArray(lista) || lista.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = lista.map(d => {
+        const iniciais = d.nome.split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase();
+        const ests = '★'.repeat(d.estrelas) + '☆'.repeat(5-d.estrelas);
+        return `<div class="card-depoimento" style="animation:subirFadeIn .5s ease both">
+          <div class="estrelas">${ests}</div>
+          <p>${d.texto.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>
+          <div class="avaliador">
+            <div class="avatar">${iniciais}</div>
+            <div class="info-avaliador">
+              <strong>${d.nome.replace(/</g,'&lt;')}</strong>
+              <span>${d.servico_desc ? d.servico_desc.replace(/</g,'&lt;') : 'Cliente'}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      document.getElementById('deps-aprovados').innerHTML = '';
+      console.warn('Depoimentos não carregados:', e);
+    }
+  }
+
+  carregarDepoimentos();
 
   /* ── Revelar ao rolar ── */
   const observador = new IntersectionObserver((entradas) => {

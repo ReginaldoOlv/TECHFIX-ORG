@@ -334,8 +334,8 @@
         <div class="tc-head">
           <div><h3>Todos os orçamentos</h3></div>
           <div class="filtros">
-            <input class="f-inp" placeholder="🔍 Buscar cliente..." oninput="buscarOrc(this.value)"/>
-            <select class="f-sel" onchange="filtroStatusOrc=this.value;renderOrc()">
+            <input class="f-inp" placeholder="🔍 Buscar cliente..." oninput="buscaOrc=this.value.toLowerCase();renderOrc()"/>
+            <select id="sel-status-orc" class="f-sel" onchange="filtroStatusOrc=this.value;renderOrc()">
               <option value="">Todos os status</option>
               <option value="novo">Novo</option>
               <option value="em_andamento">Em andamento</option>
@@ -358,7 +358,7 @@
         <div class="tc-head">
           <div><h3>Base de clientes</h3></div>
           <div class="filtros">
-            <input class="f-inp" placeholder="🔍 Buscar nome ou WhatsApp..." oninput="buscarCli(this.value)"/>
+            <input id="inp-busca-cli" class="f-inp" placeholder="🔍 Buscar nome ou WhatsApp..." oninput="renderCli()"/>
           </div>
         </div>
         <div class="ts"><table>
@@ -373,8 +373,10 @@
       <div class="ph"><h2>Serviços Realizados</h2><p>Histórico de atendimentos</p></div>
 
       <!-- Formulário para adicionar novo serviço -->
-      <div class="form-serv">
+      <div class="form-serv" id="form-serv-topo">
         <h4>➕ Registrar novo serviço</h4>
+        <input type="hidden" id="fs-orc-id" value=""/>
+        <input type="hidden" id="fs-cli-id" value=""/>
         <div class="fs-grid">
           <div class="fs-campo">
             <label>Cliente (WhatsApp)</label>
@@ -422,7 +424,7 @@
         <div class="tc-head">
           <div><h3>Histórico</h3></div>
           <div class="filtros">
-            <select class="f-sel" onchange="filtroStatusServ=this.value;renderServ()">
+            <select id="sel-status-serv" class="f-sel" onchange="filtroStatusServ=this.value;renderServ()">
               <option value="">Todos</option>
               <option value="em_andamento">Em andamento</option>
               <option value="concluido">Concluído</option>
@@ -444,7 +446,7 @@
         <div class="tc-head">
           <div><h3>Avaliações recebidas</h3></div>
           <div class="filtros">
-            <select class="f-sel" onchange="filtroDep=this.value;renderDep()">
+            <select id="sel-dep-filtro" class="f-sel" onchange="filtroDep=this.value;renderDep()">
               <option value="">Todos</option>
               <option value="false">Pendentes</option>
               <option value="true">Aprovados</option>
@@ -470,11 +472,17 @@
       <label>Observações internas (visível só aqui)</label>
       <textarea id="det-obs" placeholder="Anote peças, valores, prazo..."></textarea>
     </div>
-    <div class="det-acoes">
+    <div id="det-acoes-btn" class="det-acoes">
       <button class="btn-st st-and" onclick="mudarStatus('em_andamento')">🟡 Em andamento</button>
       <button class="btn-st st-con" onclick="mudarStatus('concluido')">✅ Concluído</button>
       <button class="btn-st st-can" onclick="mudarStatus('cancelado')">❌ Cancelado</button>
       <button class="btn-fdet" onclick="fecharDet()">Fechar</button>
+    </div>
+    <div id="det-aviso-lock" style="display:none;margin-top:.8rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:.7rem 1rem;font-size:.82rem;color:#fbbf24">
+      🔒 Este orçamento pertence a outro técnico. Você pode visualizar, mas não pode modificar.
+    </div>
+    <div id="det-aviso-lock-fechar" style="display:flex;justify-content:flex-end;margin-top:.8rem">
+      <button class="btn-fdet" onclick="fecharDet()" id="btn-fechar-lock">Fechar</button>
     </div>
   </div>
 </div>
@@ -484,25 +492,27 @@
 
 
 <script>
-  // ─── CREDENCIAIS SUPABASE ────────────────────────────────
   const SUPA_URL = 'https://pfigjyvhczzvcjseueoa.supabase.co';
   const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaWdqeXZoY3p6dmNqc2V1ZW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTE1NTEsImV4cCI6MjA4NzQyNzU1MX0.tl8aNDsA8ITt50oielqRz5Oja6xjLIR2xT8Khk3AqGk';
-  // ────────────────────────────────────────────────────────
 
-  let TOKEN = '';
-  let orcamentos=[], clientes=[], servicos=[], depoimentos=[];
+  let TOKEN = '', tecnicoLogado = '';
+  let orcamentos = [], clientes = [], servicos = [], depoimentos = [];
   let orcAtivo = null;
-  let filtroStatusOrc='', buscarOrcTxt='';
-  let filtroStatusServ='';
-  let filtroDep='';
+  let filtroStatusOrc = '', buscaOrc = '', filtroStatusServ = '', filtroDep = '';
+
+  // ── HEADERS ──────────────────────────────────────────────
+  const H = () => ({
+    'apikey': SUPA_KEY,
+    'Authorization': `Bearer ${TOKEN || SUPA_KEY}`,
+    'Content-Type': 'application/json'
+  });
 
   // ── LOGIN ─────────────────────────────────────────────────
   async function login() {
     const email = document.getElementById('l-email').value.trim();
     const senha = document.getElementById('l-senha').value;
-    const erroEl = document.getElementById('l-erro');
-    erroEl.classList.remove('vis');
-
+    const err   = document.getElementById('l-erro');
+    err.classList.remove('vis');
     try {
       const r = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
         method: 'POST',
@@ -512,174 +522,202 @@
       const d = await r.json();
       if (d.access_token) {
         TOKEN = d.access_token;
+        const n = email.split('@')[0].toLowerCase();
+        tecnicoLogado = n.includes('reginaldo') ? 'Reginaldo' : n.includes('leonardo') ? 'Leonardo' : '';
         document.getElementById('tela-login').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         const h = new Date().getHours();
-        const s = h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
-        document.getElementById('saudacao').textContent = `${s}, ${email.split('@')[0]} 👋`;
-        document.getElementById('user-label').textContent = email;
-        // Define hoje como data padrão no form de serviço
+        document.getElementById('saudacao').textContent = `${h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'}, ${email.split('@')[0]} 👋`;
+        document.getElementById('user-label').textContent = tecnicoLogado ? `🔧 ${tecnicoLogado}` : '👑 Admin';
         document.getElementById('fs-entrada').value = new Date().toISOString().split('T')[0];
-        carregarTudo();
+        // Resetar filtros e selects
+        filtroStatusOrc = ''; buscaOrc = ''; filtroStatusServ = ''; filtroDep = '';
+        document.getElementById('sel-status-orc').value = '';
+        document.getElementById('sel-status-serv').value = '';
+        document.getElementById('sel-dep-filtro').value = '';
+        await carregarTudo();
       } else {
-        erroEl.textContent = d.error_description || 'E-mail ou senha inválidos.';
-        erroEl.classList.add('vis');
+        err.textContent = d.error_description || 'E-mail ou senha inválidos.';
+        err.classList.add('vis');
       }
     } catch(e) {
-      erroEl.textContent = 'Erro de conexão com o Supabase.';
-      erroEl.classList.add('vis');
+      err.textContent = 'Erro de conexão com o Supabase.';
+      err.classList.add('vis');
     }
   }
-
-  function sair() { TOKEN=''; location.reload(); }
+  function sair() { TOKEN = ''; location.reload(); }
 
   // ── NAVEGAÇÃO ─────────────────────────────────────────────
   function ir(el) {
-    document.querySelectorAll('.mi').forEach(m=>m.classList.remove('ativo'));
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('ativa'));
+    document.querySelectorAll('.mi').forEach(m => m.classList.remove('ativo'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('ativa'));
     el.classList.add('ativo');
-    document.getElementById('page-'+el.dataset.pg).classList.add('ativa');
+    document.getElementById('page-' + el.dataset.pg).classList.add('ativa');
   }
 
-  // ── SUPABASE FETCH ────────────────────────────────────────
-  async function db(tabela, params='') {
-    const r = await fetch(`${SUPA_URL}/rest/v1/${tabela}?${params}`, {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${TOKEN}`, 'Prefer': 'count=exact' }
-    });
-    return r.json();
+  // ── DB ────────────────────────────────────────────────────
+  async function db(tabela, params = '') {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${tabela}?${params}`, { headers: H() });
+    const j = await r.json();
+    if (!r.ok) { console.error(`[db/${tabela}]`, j); return []; }
+    return Array.isArray(j) ? j : [];
   }
-
   async function dbPatch(tabela, id, dados) {
-    await fetch(`${SUPA_URL}/rest/v1/${tabela}?id=eq.${id}`, {
-      method: 'PATCH',
-      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify(dados)
+    const r = await fetch(`${SUPA_URL}/rest/v1/${tabela}?id=eq.${id}`, {
+      method: 'PATCH', headers: { ...H(), 'Prefer': 'return=minimal' }, body: JSON.stringify(dados)
     });
+    if (!r.ok) console.error(`[patch/${tabela}]`, await r.json());
   }
-
   async function dbPost(tabela, dados) {
     const r = await fetch(`${SUPA_URL}/rest/v1/${tabela}`, {
-      method: 'POST',
-      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-      body: JSON.stringify(dados)
+      method: 'POST', headers: { ...H(), 'Prefer': 'return=representation' }, body: JSON.stringify(dados)
     });
-    return r.json();
+    const j = await r.json();
+    if (!r.ok) console.error(`[post/${tabela}]`, j);
+    return Array.isArray(j) ? j[0] : null;
+  }
+  async function dbDelete(tabela, id) {
+    await fetch(`${SUPA_URL}/rest/v1/${tabela}?id=eq.${id}`, { method: 'DELETE', headers: H() });
   }
 
   // ── CARREGAR TUDO ─────────────────────────────────────────
   async function carregarTudo() {
     [orcamentos, clientes, servicos, depoimentos] = await Promise.all([
-      db('orcamentos', 'order=criado_em.desc'),
-      db('clientes',   'order=criado_em.desc'),
+      db('orcamentos',          'order=criado_em.desc'),
+      db('clientes',            'order=criado_em.desc'),
       db('servicos_realizados', 'order=criado_em.desc'),
-      db('depoimentos', 'order=criado_em.desc')
+      db('depoimentos',         'order=criado_em.desc')
     ]);
-    renderDashboard();
-    renderOrc();
-    renderCli();
-    renderServ();
-    renderDep();
+    console.log('[carregarTudo] orç:', orcamentos.length, 'cli:', clientes.length);
+    renderDashboard(); renderOrc(); renderCli(); renderServ(); renderDep();
   }
 
   // ── DASHBOARD ─────────────────────────────────────────────
   function renderDashboard() {
-    document.getElementById('m1').textContent = orcamentos.filter(o=>o.status==='novo').length;
-    document.getElementById('m2').textContent = orcamentos.filter(o=>o.status==='em_andamento').length;
-    document.getElementById('m3').textContent = orcamentos.filter(o=>o.status==='concluido').length;
+    const orc_meus = tecnicoLogado ? orcamentos.filter(o => o.tecnico === tecnicoLogado) : orcamentos;
+    const serv_meus = tecnicoLogado ? servicos.filter(s => s.tecnico === tecnicoLogado) : servicos;
+
+    document.getElementById('m1').textContent = orc_meus.filter(o => o.status === 'novo').length;
+    document.getElementById('m2').textContent = serv_meus.filter(s => s.status === 'em_andamento').length;
+    document.getElementById('m3').textContent = serv_meus.filter(s => s.status === 'concluido').length;
     document.getElementById('m4').textContent = clientes.length;
 
-    const tb = document.getElementById('dash-tb');
-    const ult = orcamentos.slice(0,5);
+    const tb  = document.getElementById('dash-tb');
+    const ult = orc_meus.slice(0, 8);
     if (!ult.length) { tb.innerHTML = vazio('Nenhum orçamento ainda'); return; }
     tb.innerHTML = ult.map(o => {
-      const cli = clientes.find(c=>c.id===o.cliente_id);
+      const cli = clientes.find(c => c.id === o.cliente_id);
       return `<tr>
-        <td class="cel-nome">${cli?.nome||o.cliente_id||'—'}</td>
+        <td class="cel-nome">${cli?.nome || '—'}</td>
         <td>${o.dispositivo}</td>
-        <td>${(o.servicos||[]).join(', ')}</td>
+        <td style="font-size:.78rem;max-width:160px">${(o.servicos || []).join(', ')}</td>
         <td>${o.tecnico}</td>
         <td>${urgBadge(o.urgencia)}</td>
         <td>${badge(o.status)}</td>
         <td class="cel-suave">${fmtData(o.criado_em)}</td>
+        <td><button class="ba" onclick='abrirDet(${esc64(o)})'>Ver</button></td>
       </tr>`;
     }).join('');
   }
 
   // ── ORÇAMENTOS ────────────────────────────────────────────
-  function buscarOrc(v) { buscarOrcTxt=v.toLowerCase(); renderOrc(); }
-
   function renderOrc() {
     const tb = document.getElementById('tb-orc');
-    let lista = orcamentos;
-    if (filtroStatusOrc) lista = lista.filter(o=>o.status===filtroStatusOrc);
-    if (buscarOrcTxt) {
-      lista = lista.filter(o => {
-        const cli = clientes.find(c=>c.id===o.cliente_id);
-        return (cli?.nome||'').toLowerCase().includes(buscarOrcTxt) ||
-               (cli?.whatsapp||'').includes(buscarOrcTxt);
-      });
-    }
+    let lista = tecnicoLogado ? orcamentos : [...orcamentos]; // técnico vê só os seus no padrão
+    if (tecnicoLogado) lista = orcamentos; // na verdade mostra todos mas restringe ações
+
+    if (filtroStatusOrc) lista = lista.filter(o => o.status === filtroStatusOrc);
+    if (buscaOrc) lista = lista.filter(o => {
+      const cli = clientes.find(c => c.id === o.cliente_id);
+      return (cli?.nome || '').toLowerCase().includes(buscaOrc) ||
+             (cli?.whatsapp || '').includes(buscaOrc);
+    });
+
     if (!lista.length) { tb.innerHTML = vazio('Nenhum orçamento encontrado'); return; }
     tb.innerHTML = lista.map(o => {
-      const cli = clientes.find(c=>c.id===o.cliente_id);
-      return `<tr>
-        <td class="cel-nome">${cli?.nome||'—'}</td>
-        <td class="cel-suave">${fmtWpp(cli?.whatsapp||'')}</td>
-        <td>${o.dispositivo} ${o.marca?`<span class="cel-suave">${o.marca}</span>`:''}</td>
-        <td style="max-width:160px;font-size:.78rem">${(o.servicos||[]).join(', ')}</td>
+      const cli     = clientes.find(c => c.id === o.cliente_id);
+      const ehMeu   = !tecnicoLogado || o.tecnico === tecnicoLogado;
+      const podeAceitar = o.status === 'novo' && ehMeu;
+      return `<tr ${!ehMeu ? 'style="opacity:.6"' : ''}>
+        <td class="cel-nome">${cli?.nome || '—'}</td>
+        <td class="cel-suave">${fmtWpp(cli?.whatsapp || '')}</td>
+        <td>${o.dispositivo}${o.marca ? ' <span class="cel-suave">'+o.marca+'</span>' : ''}</td>
+        <td style="max-width:140px;font-size:.78rem">${(o.servicos || []).join(', ')}</td>
         <td>${urgBadge(o.urgencia)}</td>
         <td>${o.tecnico}</td>
         <td>${badge(o.status)}</td>
         <td class="cel-suave">${fmtData(o.criado_em)}</td>
-        <td><button class="ba" onclick='abrirDet(${JSON.stringify(o)})'>Ver</button></td>
-      </tr>`;
-    }).join('');
-  }
-
-  // ── CLIENTES ─────────────────────────────────────────────
-  function buscarCli(v) {
-    const t = v.toLowerCase();
-    const tb = document.getElementById('tb-cli');
-    const lista = t ? clientes.filter(c=>c.nome.toLowerCase().includes(t)||c.whatsapp.includes(t)) : clientes;
-    if (!lista.length) { tb.innerHTML = vazio('Nenhum cliente encontrado'); return; }
-    tb.innerHTML = lista.map(c => {
-      const total = orcamentos.filter(o=>o.cliente_id===c.id).length;
-      return `<tr>
-        <td class="cel-nome">${c.nome}</td>
-        <td>${fmtWpp(c.whatsapp)}</td>
-        <td class="cel-suave">${c.cidade||'—'}</td>
-        <td><span class="badge b-novo">${total} pedido${total!==1?'s':''}</span></td>
-        <td class="cel-suave">${fmtData(c.criado_em)}</td>
-        <td>
-          <a href="https://wa.me/55${c.whatsapp.replace(/\D/g,'')}" target="_blank" rel="noopener">
-            <button class="ba g">WhatsApp</button>
-          </a>
+        <td style="display:flex;gap:.3rem;flex-wrap:wrap">
+          <button class="ba" onclick='abrirDet(${esc64(o)})'>Ver</button>
+          ${podeAceitar ? `<button class="ba g" onclick='aceitarOrcamento(${esc64(o)})'>✓ Aceitar</button>` : ''}
+          ${!ehMeu ? '<span style="font-size:.7rem;color:var(--suave)">🔒 outro técnico</span>' : ''}
         </td>
       </tr>`;
     }).join('');
   }
 
-  function renderCli() { buscarCli(''); }
+  // ── ACEITAR → preenche form de serviço ───────────────────
+  async function aceitarOrcamento(o) {
+    const cli = clientes.find(c => c.id === o.cliente_id);
+    document.getElementById('fs-desc').value   = (o.servicos || []).join(', ');
+    document.getElementById('fs-disp').value   = o.dispositivo || '';
+    document.getElementById('fs-marca').value  = [o.marca, o.modelo].filter(Boolean).join(' ');
+    document.getElementById('fs-wpp').value    = cli?.whatsapp || '';
+    document.getElementById('fs-orc-id').value = o.id;
+    document.getElementById('fs-cli-id').value = o.cliente_id || '';
+    const sel = document.getElementById('fs-tec');
+    for (let opt of sel.options) if (opt.value === o.tecnico) { opt.selected = true; break; }
+    await dbPatch('orcamentos', o.id, { status: 'em_andamento' });
+    orcamentos = await db('orcamentos', 'order=criado_em.desc');
+    renderOrc(); renderDashboard();
+    document.querySelector('.mi[data-pg="servicos"]').click();
+    setTimeout(() => document.getElementById('form-serv-topo').scrollIntoView({ behavior: 'smooth' }), 200);
+    toast('📋 Dados puxados! Confira e registre o serviço.', 'v');
+  }
+
+  // ── CLIENTES ─────────────────────────────────────────────
+  function renderCli() {
+    const t  = (document.getElementById('inp-busca-cli')?.value || '').toLowerCase();
+    const tb = document.getElementById('tb-cli');
+    const lista = t ? clientes.filter(c =>
+      c.nome.toLowerCase().includes(t) || (c.whatsapp || '').includes(t)) : clientes;
+    if (!lista.length) { tb.innerHTML = vazio('Nenhum cliente encontrado'); return; }
+    tb.innerHTML = lista.map(c => {
+      const total = orcamentos.filter(o => o.cliente_id === c.id).length;
+      return `<tr>
+        <td class="cel-nome">${c.nome}</td>
+        <td>${fmtWpp(c.whatsapp)}</td>
+        <td class="cel-suave">${c.cidade || '—'}</td>
+        <td><span class="badge b-novo">${total} pedido${total !== 1 ? 's' : ''}</span></td>
+        <td class="cel-suave">${fmtData(c.criado_em)}</td>
+        <td><a href="https://wa.me/55${(c.whatsapp||'').replace(/\D/g,'')}" target="_blank" rel="noopener">
+          <button class="ba g">WhatsApp</button></a>
+        </td>
+      </tr>`;
+    }).join('');
+  }
 
   // ── SERVIÇOS ─────────────────────────────────────────────
   function renderServ() {
     const tb = document.getElementById('tb-serv');
-    let lista = servicos;
-    if (filtroStatusServ) lista = lista.filter(s=>s.status===filtroStatusServ);
+    let lista = [...servicos];
+    if (filtroStatusServ) lista = lista.filter(s => s.status === filtroStatusServ);
     if (!lista.length) { tb.innerHTML = vazio('Nenhum serviço registrado'); return; }
     tb.innerHTML = lista.map(s => {
-      const cli = clientes.find(c=>c.id===s.cliente_id);
-      return `<tr>
-        <td class="cel-nome">${cli?.nome||'—'}</td>
+      const cli   = clientes.find(c => c.id === s.cliente_id);
+      const ehMeu = !tecnicoLogado || s.tecnico === tecnicoLogado;
+      return `<tr ${!ehMeu ? 'style="opacity:.6"' : ''}>
+        <td class="cel-nome">${cli?.nome || '—'}</td>
         <td>${s.descricao}</td>
-        <td class="cel-suave">${s.dispositivo||''} ${s.marca||''}</td>
-        <td>${s.tecnico||'—'}</td>
-        <td>${s.valor_cobrado ? `R$ ${parseFloat(s.valor_cobrado).toFixed(2)}` : '—'}</td>
-        <td class="cel-suave">${s.data_entrada||'—'}</td>
-        <td class="cel-suave">${s.data_saida||'—'}</td>
+        <td class="cel-suave">${[s.dispositivo, s.marca].filter(Boolean).join(' ')}</td>
+        <td>${s.tecnico || '—'}</td>
+        <td>${s.valor_cobrado ? 'R$ ' + parseFloat(s.valor_cobrado).toFixed(2) : '—'}</td>
+        <td class="cel-suave">${s.data_entrada || '—'}</td>
+        <td class="cel-suave">${s.data_saida || '—'}</td>
         <td>${badge(s.status)}</td>
-        <td>
-          <button class="ba g" onclick="concluirServico('${s.id}')">✓ Concluir</button>
+        <td style="display:flex;gap:.3rem;flex-wrap:wrap">
+          ${ehMeu && s.status === 'em_andamento' ? `<button class="ba g" onclick="concluirServico('${s.id}')">✓ Concluir</button>` : ''}
+          ${ehMeu ? `<button class="ba r" onclick="deletarServico('${s.id}')">🗑</button>` : '<span style="font-size:.7rem;color:var(--suave)">🔒</span>'}
         </td>
       </tr>`;
     }).join('');
@@ -687,97 +725,100 @@
 
   async function adicionarServico() {
     const desc = document.getElementById('fs-desc').value.trim();
-    if (!desc) { toast('Preencha a descrição do serviço.','r'); return; }
-
-    const wpp  = document.getElementById('fs-wpp').value.trim().replace(/\D/g,'');
-    const cli  = clientes.find(c=>c.whatsapp.replace(/\D/g,'')=== wpp);
-
+    if (!desc) { toast('Preencha a descrição do serviço.', 'r'); return; }
+    const wpp   = document.getElementById('fs-wpp').value.trim().replace(/\D/g, '');
+    const cliId = document.getElementById('fs-cli-id').value ||
+                  clientes.find(c => (c.whatsapp || '').replace(/\D/g, '') === wpp)?.id || null;
     const dados = {
-      cliente_id:   cli?.id || null,
+      cliente_id:   cliId,
+      orcamento_id: document.getElementById('fs-orc-id').value || null,
       descricao:    desc,
       dispositivo:  document.getElementById('fs-disp').value.trim(),
       marca:        document.getElementById('fs-marca').value.trim(),
       tecnico:      document.getElementById('fs-tec').value,
-      valor_cobrado:parseFloat(document.getElementById('fs-val').value)||null,
-      data_entrada: document.getElementById('fs-entrada').value||null,
+      valor_cobrado:parseFloat(document.getElementById('fs-val').value) || null,
+      data_entrada: document.getElementById('fs-entrada').value || null,
       status:       document.getElementById('fs-status').value
     };
-
     await dbPost('servicos_realizados', dados);
-    toast('✅ Serviço registrado!','v');
-    // Limpar campos
-    ['fs-desc','fs-disp','fs-marca','fs-val','fs-wpp'].forEach(id=>document.getElementById(id).value='');
-    // Recarregar
-    servicos = await db('servicos_realizados','order=criado_em.desc');
-    renderServ();
-    renderDashboard();
+    toast('✅ Serviço registrado!', 'v');
+    ['fs-desc','fs-disp','fs-marca','fs-val','fs-wpp','fs-orc-id','fs-cli-id'].forEach(id => document.getElementById(id).value = '');
+    servicos = await db('servicos_realizados', 'order=criado_em.desc');
+    renderServ(); renderDashboard();
   }
 
   async function concluirServico(id) {
-    const hoje = new Date().toISOString().split('T')[0];
-    await dbPatch('servicos_realizados', id, { status:'concluido', data_saida: hoje });
-    toast('✅ Serviço concluído!','v');
-    servicos = await db('servicos_realizados','order=criado_em.desc');
-    renderServ();
-    renderDashboard();
+    await dbPatch('servicos_realizados', id, { status: 'concluido', data_saida: new Date().toISOString().split('T')[0] });
+    toast('✅ Serviço concluído!', 'v');
+    servicos = await db('servicos_realizados', 'order=criado_em.desc');
+    renderServ(); renderDashboard();
+  }
+
+  async function deletarServico(id) {
+    if (!confirm('Apagar este serviço do histórico?')) return;
+    await dbDelete('servicos_realizados', id);
+    toast('🗑 Serviço apagado.', 'v');
+    servicos = await db('servicos_realizados', 'order=criado_em.desc');
+    renderServ(); renderDashboard();
   }
 
   // ── DEPOIMENTOS ───────────────────────────────────────────
   function renderDep() {
     const tb = document.getElementById('tb-dep');
-    let lista = depoimentos;
-    if (filtroDep !== '') lista = lista.filter(d=>String(d.aprovado)===filtroDep);
+    let lista = [...depoimentos];
+    if (filtroDep !== '') lista = lista.filter(d => String(d.aprovado) === filtroDep);
     if (!lista.length) { tb.innerHTML = vazio('Nenhum depoimento encontrado'); return; }
     tb.innerHTML = lista.map(d => `<tr>
       <td class="cel-nome">${d.nome}</td>
-      <td class="cel-suave">${d.servico_desc||'—'}</td>
+      <td class="cel-suave">${d.servico_desc || '—'}</td>
       <td><span class="est">${'★'.repeat(d.estrelas)}${'☆'.repeat(5-d.estrelas)}</span></td>
-      <td style="max-width:220px;font-size:.82rem">${d.texto}</td>
+      <td style="max-width:200px;font-size:.82rem">${d.texto}</td>
       <td>${d.aprovado ? '<span class="badge b-aprovado">Aprovado</span>' : '<span class="badge b-pendente">Pendente</span>'}</td>
       <td class="cel-suave">${fmtData(d.criado_em)}</td>
       <td style="display:flex;gap:.4rem">
         ${!d.aprovado ? `<button class="ba g" onclick="aprovarDep('${d.id}')">✓ Aprovar</button>` : ''}
-        <button class="ba r" onclick="recusarDep('${d.id}')">✕</button>
+        <button class="ba r" onclick="recusarDep('${d.id}')">🗑</button>
       </td>
     </tr>`).join('');
   }
 
   async function aprovarDep(id) {
     await dbPatch('depoimentos', id, { aprovado: true });
-    toast('✅ Depoimento aprovado!','v');
-    depoimentos = await db('depoimentos','order=criado_em.desc');
+    toast('✅ Depoimento aprovado! Já aparece no site.', 'v');
+    depoimentos = await db('depoimentos', 'order=criado_em.desc');
     renderDep();
   }
 
   async function recusarDep(id) {
     if (!confirm('Remover este depoimento?')) return;
-    await fetch(`${SUPA_URL}/rest/v1/depoimentos?id=eq.${id}`, {
-      method: 'DELETE',
-      headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${TOKEN}` }
-    });
-    toast('Depoimento removido.','v');
-    depoimentos = await db('depoimentos','order=criado_em.desc');
+    await dbDelete('depoimentos', id);
+    toast('🗑 Depoimento removido.', 'v');
+    depoimentos = await db('depoimentos', 'order=criado_em.desc');
     renderDep();
   }
 
-  // ── MODAL DETALHE ORÇAMENTO ───────────────────────────────
+  // ── MODAL DETALHE ─────────────────────────────────────────
   function abrirDet(o) {
     orcAtivo = o;
-    const cli = clientes.find(c=>c.id===o.cliente_id);
+    const cli   = clientes.find(c => c.id === o.cliente_id);
+    const ehMeu = !tecnicoLogado || o.tecnico === tecnicoLogado;
     document.getElementById('det-corpo').innerHTML = `
-      <div class="det-l"><span>👤 Nome</span><span>${cli?.nome||'—'}</span></div>
-      <div class="det-l"><span>📞 WhatsApp</span><span>${fmtWpp(cli?.whatsapp||'—')}</span></div>
-      <div class="det-l"><span>📍 Cidade</span><span>${cli?.cidade||'—'}</span></div>
+      <div class="det-l"><span>👤 Nome</span><span>${cli?.nome || '—'}</span></div>
+      <div class="det-l"><span>📞 WhatsApp</span><span>${fmtWpp(cli?.whatsapp || '—')}</span></div>
+      <div class="det-l"><span>📍 Cidade</span><span>${cli?.cidade || '—'}</span></div>
       <div class="det-l"><span>💻 Dispositivo</span><span>${o.dispositivo}</span></div>
-      <div class="det-l"><span>🏷️ Marca/Modelo</span><span>${o.marca||'—'} ${o.modelo||''}</span></div>
-      <div class="det-l"><span>🔧 Serviços</span><span>${(o.servicos||[]).join(', ')}</span></div>
+      <div class="det-l"><span>🏷️ Marca/Modelo</span><span>${o.marca || '—'} ${o.modelo || ''}</span></div>
+      <div class="det-l"><span>🔧 Serviços</span><span>${(o.servicos || []).join(', ')}</span></div>
       <div class="det-l"><span>⚠️ Problema</span><span>${o.problema}</span></div>
-      <div class="det-l"><span>⏱️ Urgência</span><span>${o.urgencia||'—'}</span></div>
+      <div class="det-l"><span>⏱️ Urgência</span><span>${o.urgencia || '—'}</span></div>
       <div class="det-l"><span>👨‍🔧 Técnico</span><span>${o.tecnico}</span></div>
       <div class="det-l"><span>📌 Status</span><span>${badge(o.status)}</span></div>
       <div class="det-l"><span>📅 Recebido</span><span>${fmtData(o.criado_em)}</span></div>
     `;
-    document.getElementById('det-obs').value = o.observacoes||'';
+    document.getElementById('det-obs').value = o.observacoes || '';
+    // Mostrar/esconder botões de ação conforme permissão
+    document.getElementById('det-acoes-btn').style.display = ehMeu ? 'flex' : 'none';
+    document.getElementById('det-aviso-lock').style.display = ehMeu ? 'none' : 'block';
     document.getElementById('modal-det').classList.add('ab');
   }
 
@@ -785,11 +826,10 @@
 
   async function mudarStatus(st) {
     if (!orcAtivo) return;
-    const obs = document.getElementById('det-obs').value;
-    await dbPatch('orcamentos', orcAtivo.id, { status: st, observacoes: obs });
-    toast('✅ Status atualizado!','v');
+    await dbPatch('orcamentos', orcAtivo.id, { status: st, observacoes: document.getElementById('det-obs').value });
+    toast('✅ Status atualizado!', 'v');
     fecharDet();
-    orcamentos = await db('orcamentos','order=criado_em.desc');
+    orcamentos = await db('orcamentos', 'order=criado_em.desc');
     renderOrc(); renderDashboard();
   }
 
@@ -799,36 +839,32 @@
     const l = { novo:'Novo', em_andamento:'Em andamento', concluido:'Concluído', cancelado:'Cancelado' };
     return `<span class="badge ${m[st]||''}">${l[st]||st}</span>`;
   }
-
   function urgBadge(u) {
     if (!u) return '—';
     const m = { 'Urgente':'urg-urgente','Esta semana':'urg-semana','Sem pressa':'urg-sempressa' };
     return `<span class="${m[u]||''}">${u}</span>`;
   }
-
   function fmtData(iso) {
     if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' });
+    return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit' });
   }
-
   function fmtWpp(n) {
     const d = (n||'').replace(/\D/g,'');
-    if (d.length===11) return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
-    return n||'—';
+    return d.length===11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : (n||'—');
   }
-
   function vazio(msg) {
     return `<tr><td colspan="20"><div class="ev"><div class="ev-i">📭</div><p>${msg}</p></div></td></tr>`;
   }
-
   function toast(msg, tipo) {
     const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = `toast ${tipo} vis`;
-    setTimeout(() => el.classList.remove('vis'), 3000);
+    el.textContent = msg; el.className = `toast ${tipo} vis`;
+    setTimeout(() => el.classList.remove('vis'), 3500);
+  }
+  function esc64(obj) {
+    return "JSON.parse(atob('" + btoa(unescape(encodeURIComponent(JSON.stringify(obj)))) + "'))";
   }
 
-  document.addEventListener('keydown', e => { if(e.key==='Escape') fecharDet(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharDet(); });
 </script>
 </body>
 </html>
