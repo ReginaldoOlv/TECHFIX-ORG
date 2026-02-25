@@ -242,7 +242,8 @@
     /* Upload de arquivo */
     .area-upload {
       border: 2px dashed var(--borda); border-radius: 10px; padding: 1rem;
-      text-align: center; cursor: pointer; transition: border-color .2s; position: relative;
+      text-align: center; cursor: pointer; transition: all .2s; position: relative;
+      background: var(--fundo2);
     }
     .area-upload:hover { border-color: var(--roxo); }
     .area-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
@@ -256,6 +257,26 @@
     .preview-arquivo.visivel { display: flex; }
     .preview-arquivo span { font-size: .82rem; color: var(--roxo-claro); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .preview-arquivo button { background: none; border: none; color: var(--texto-suave); cursor: pointer; font-size: 1rem; }
+
+    /* Previews de anexos */
+    .thumb-item {
+      position: relative; width: 70px; height: 70px; border-radius: 8px;
+      overflow: hidden; border: 1px solid var(--borda); flex-shrink: 0;
+    }
+    .thumb-item img, .thumb-item video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .thumb-del {
+      position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.75);
+      border: none; color: #fff; border-radius: 50%; width: 18px; height: 18px;
+      font-size: .6rem; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; line-height: 1; padding: 0;
+    }
+    .thumb-video-icon {
+      position: absolute; bottom: 3px; left: 3px; background: rgba(0,0,0,0.65);
+      color: #fff; font-size: .58rem; border-radius: 4px; padding: 1px 4px;
+    }
+    #preview-anexos { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .6rem; }
 
     /* Botão enviar depoimento */
     .btn-enviar-dep {
@@ -512,6 +533,7 @@
     }
 
     /* ANIMAÇÕES */
+    @keyframes girar { to { transform: rotate(360deg); } }
     @keyframes subirFadeIn {
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -519,8 +541,10 @@
     .revelar { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
     .revelar.visivel { opacity: 1; transform: none; }
 
-    /* RESPONSIVO */
+    /* ── RESPONSIVO MOBILE ──────────────────────────────── */
     @media (max-width: 768px) {
+
+      /* Navbar */
       nav ul, .nav-cta { display: none; }
       .hamburger { display: flex; }
       nav.aberto ul {
@@ -529,9 +553,81 @@
         padding: 1.5rem 5%; gap: 1.2rem; border-bottom: 1px solid var(--borda);
       }
       nav.aberto .nav-cta { display: block; }
+
+      /* Hero */
+      .hero-titulo { font-size: 2rem; }
+      .hero-sub { font-size: .95rem; }
+      .hero-btns { flex-direction: column; gap: .8rem; }
+      .hero-btns a, .hero-btns button { width: 100%; text-align: center; }
+      .hero-stats { gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
+      .stat-num { font-size: 1.6rem; }
+
+      /* Seções gerais */
       .grade-sobre, .grade-localizacao { grid-template-columns: 1fr; }
-      .hero-stats { gap: 1.5rem; }
-      .whatsapp-flutuante { bottom: 1rem; right: 1rem; }
+      .grade-servicos { grid-template-columns: 1fr 1fr; }
+      section { padding: 3rem 5%; }
+      .section-titulo { font-size: 1.6rem; }
+
+      /* Modal orçamento — tela cheia */
+      .modal-box {
+        width: 100%; max-width: 100%; margin: 0;
+        border-radius: 20px 20px 0 0;
+        position: fixed; bottom: 0; left: 0; right: 0;
+        max-height: 92vh; overflow-y: auto;
+        padding: 1.4rem 1.1rem 2rem;
+      }
+      .modal-overlay { align-items: flex-end; }
+      .modal-header { margin-bottom: 1rem; }
+      .etapa-card h3 { font-size: 1rem; }
+
+      /* Opções de seleção em 2 colunas */
+      .grade-opcoes { grid-template-columns: repeat(2, 1fr); }
+      .opcao { padding: .7rem .5rem; }
+      .opcao-icone { font-size: 1.4rem; }
+      .op-nome { font-size: .78rem; }
+
+      /* Campos do formulário */
+      .campos-linha { grid-template-columns: 1fr; gap: .6rem; }
+      .campo-orc input, .campo-orc textarea { font-size: .9rem; }
+
+      /* Chips de urgência */
+      .chips-urgencia { gap: .4rem; }
+      .chip { padding: .45rem .8rem; font-size: .8rem; }
+
+      /* Upload de anexos */
+      .area-upload { padding: 1rem; }
+      .upload-icone { font-size: 1.3rem; }
+      .upload-texto { font-size: .82rem; }
+      .upload-sub   { font-size: .7rem; }
+      .thumb-item   { width: 58px; height: 58px; }
+
+      /* Resumo */
+      .resumo-linha { font-size: .82rem; }
+
+      /* Botões de navegação */
+      .nav-etapas { gap: .5rem; }
+      .btn-avancar, .btn-voltar { padding: .65rem 1rem; font-size: .88rem; }
+
+      /* Seletor de técnico */
+      .tec-grid { grid-template-columns: 1fr 1fr; }
+
+      /* Depoimentos */
+      .coluna-depoimentos { gap: .8rem; }
+      .card-depoimento { padding: 1.2rem; }
+
+      /* Contato */
+      .contatos-grid { grid-template-columns: 1fr; }
+
+      /* WhatsApp flutuante */
+      .whatsapp-flutuante { bottom: 1rem; right: 1rem; width: 50px; height: 50px; }
+      .whatsapp-flutuante svg { width: 22px; height: 22px; }
+    }
+
+    @media (max-width: 400px) {
+      .hero-titulo { font-size: 1.7rem; }
+      .grade-servicos { grid-template-columns: 1fr; }
+      .grade-opcoes { grid-template-columns: repeat(2, 1fr); }
+      .stat-num { font-size: 1.4rem; }
     }
   </style>
 </head>
@@ -545,6 +641,7 @@
     <li><a href="#sobre">Sobre</a></li>
     <li><a href="#localizacao">Localização</a></li>
     <li><a href="#contato">Contato</a></li>
+    <li><a href="acompanhar.html" style="color:var(--roxo-claro)">📦 Meu serviço</a></li>
   </ul>
   <a href="#contato" class="nav-cta">Falar no WhatsApp</a>
   <button class="hamburger" onclick="document.getElementById('navbar').classList.toggle('aberto')" aria-label="Menu">
@@ -671,28 +768,11 @@
     <!-- Depoimentos + formulário -->
     <div class="coluna-depoimentos revelar">
 
-      <!-- Depoimentos fixos de exemplo -->
-      <div class="card-depoimento">
-        <div class="estrelas">★★★★★</div>
-        <p>Trouxe meu notebook que estava superaquecendo e não ligava direito. Em 2 dias já estava pronto e como novo. Atendimento incrível!</p>
-        <div class="avaliador">
-          <div class="avatar">RC</div>
-          <div class="info-avaliador">
-            <strong>Rafael Costa</strong>
-            <span>Reparo de notebook</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-depoimento">
-        <div class="estrelas">★★★★★</div>
-        <p>Montaram meu PC gamer do zero com ótimo custo-benefício. Preço justo, peças de qualidade e entrega antes do prazo. Super recomendo!</p>
-        <div class="avaliador">
-          <div class="avatar">LP</div>
-          <div class="info-avaliador">
-            <strong>Lucas Pereira</strong>
-            <span>Montagem de desktop</span>
-          </div>
+      <!-- Depoimentos aprovados carregados do banco -->
+      <div id="deps-aprovados">
+        <div style="text-align:center;padding:1rem;color:var(--texto-suave);font-size:.85rem">
+          <span style="display:inline-block;width:16px;height:16px;border:2px solid var(--borda);border-top-color:var(--roxo);border-radius:50%;animation:girar .7s linear infinite;vertical-align:middle;margin-right:.4rem"></span>
+          Carregando avaliações...
         </div>
       </div>
 
@@ -1001,15 +1081,30 @@
       <div class="campo-orc">
         <label>Urgência</label>
         <div class="chips-urgencia">
-          <div class="chip" onclick="selecionarChip(this,'urgencia')">🟢 Sem pressa</div>
-          <div class="chip" onclick="selecionarChip(this,'urgencia')">🟡 Esta semana</div>
-          <div class="chip" onclick="selecionarChip(this,'urgencia')">🔴 Urgente</div>
+          <div class="chip" onclick="selecionarChip(this,'urgencia')" data-valor="Sem pressa">🟢 Sem pressa</div>
+          <div class="chip" onclick="selecionarChip(this,'urgencia')" data-valor="Esta semana">🟡 Esta semana</div>
+          <div class="chip" onclick="selecionarChip(this,'urgencia')" data-valor="Urgente">🔴 Urgente</div>
         </div>
       </div>
 
       <div class="campo-orc">
         <label>Bairro / Cidade</label>
         <input type="text" id="orc-local" placeholder="Ex: Bairro Água Verde, Curitiba" maxlength="80" />
+      </div>
+
+      <div class="campo-orc">
+        <label>📎 Fotos ou vídeos do problema <span style="color:var(--texto-suave);font-weight:400">(opcional)</span></label>
+        <div class="area-upload" id="area-upload" onclick="document.getElementById('orc-anexos').click()"
+             ondragover="event.preventDefault();this.classList.add('drag-over')"
+             ondragleave="this.classList.remove('drag-over')"
+             ondrop="event.preventDefault();this.classList.remove('drag-over');handleAnexos(event.dataTransfer.files)">
+          <div class="upload-icone">📁</div>
+          <div class="upload-texto">Clique ou arraste arquivos aqui</div>
+          <div class="upload-sub">Fotos (JPG, PNG) e vídeos (MP4, MOV) • Máx. 50MB por arquivo</div>
+          <input type="file" id="orc-anexos" multiple accept="image/*,video/mp4,video/mov,video/quicktime,video/avi"
+                 style="display:none" onchange="handleAnexos(this.files)"/>
+        </div>
+        <div id="preview-anexos" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem"></div>
       </div>
 
       <div class="nav-etapas">
@@ -1074,46 +1169,185 @@
   const SUPA_URL = 'https://pfigjyvhczzvcjseueoa.supabase.co';
   const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaWdqeXZoY3p6dmNqc2V1ZW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTE1NTEsImV4cCI6MjA4NzQyNzU1MX0.tl8aNDsA8ITt50oielqRz5Oja6xjLIR2xT8Khk3AqGk';
 
+  const HDRS = {
+    'apikey':        SUPA_KEY,
+    'Authorization': `Bearer ${SUPA_KEY}`,
+    'Content-Type':  'application/json'
+  };
+
   async function supaInsert(tabela, dados) {
     try {
-      await fetch(`${SUPA_URL}/rest/v1/${tabela}`, {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${tabela}`, {
         method: 'POST',
-        headers: {
-          'apikey': SUPA_KEY,
-          'Authorization': `Bearer ${SUPA_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
+        headers: { ...HDRS, 'Prefer': 'return=representation' },
         body: JSON.stringify(dados)
       });
-    } catch(e) { console.warn('Supabase offline, dados não salvos:', e); }
+      const json = await r.json();
+      if (!r.ok) console.error(`[Supabase] Erro em ${tabela}:`, json);
+      return Array.isArray(json) ? json[0] : null;
+    } catch(e) {
+      console.error('[Supabase] Fetch erro:', e);
+      return null;
+    }
   }
 
-  /* Garante ou cria o cliente e retorna o ID */
   async function garantirCliente(nome, whatsapp, cidade) {
     try {
-      const wppLimpo = whatsapp.replace(/\D/g,'');
-      /* Tenta buscar cliente existente pelo WhatsApp */
-      const busca = await fetch(
-        `${SUPA_URL}/rest/v1/clientes?whatsapp=eq.${wppLimpo}&select=id&limit=1`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } }
-      );
-      const lista = await busca.json();
-      if (lista && lista.length > 0) return lista[0].id;
+      const wpp = (whatsapp || '').replace(/\D/g, '');
 
-      /* Cria novo cliente */
-      const cria = await fetch(`${SUPA_URL}/rest/v1/clientes`, {
+      // 1. Busca cliente existente
+      const r1 = await fetch(
+        `${SUPA_URL}/rest/v1/clientes?whatsapp=eq.${wpp}&select=id&limit=1`,
+        { headers: HDRS }
+      );
+      const lista1 = await r1.json();
+      if (Array.isArray(lista1) && lista1.length > 0) return lista1[0].id;
+
+      // 2. Cria novo cliente
+      const r2 = await fetch(`${SUPA_URL}/rest/v1/clientes`, {
         method: 'POST',
-        headers: {
-          'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
-          'Content-Type': 'application/json', 'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({ nome, whatsapp: wppLimpo, cidade })
+        headers: { ...HDRS, 'Prefer': 'return=representation,resolution=ignore-duplicates' },
+        body: JSON.stringify({ nome, whatsapp: wpp, cidade: cidade || null })
       });
-      const novo = await cria.json();
-      return novo[0]?.id || null;
-    } catch(e) { return null; }
+      const criado = await r2.json();
+      if (Array.isArray(criado) && criado.length > 0) return criado[0].id;
+
+      // 3. Se duplicado ignorado, busca novamente
+      const r3 = await fetch(
+        `${SUPA_URL}/rest/v1/clientes?whatsapp=eq.${wpp}&select=id&limit=1`,
+        { headers: HDRS }
+      );
+      const lista3 = await r3.json();
+      return Array.isArray(lista3) && lista3.length > 0 ? lista3[0].id : null;
+    } catch(e) {
+      console.error('[Supabase] garantirCliente erro:', e);
+      return null;
+    }
   }
+
+  /* ── Gerenciar anexos de orçamento ── */
+  let arquivosAnexos = [];
+
+  function handleAnexos(files) {
+    const permitidos = ['image/jpeg','image/jpg','image/png','image/webp','image/gif',
+                        'video/mp4','video/quicktime','video/avi'];
+    const maxSize = 50 * 1024 * 1024; // 50MB
+
+    Array.from(files).forEach(f => {
+      if (!permitidos.includes(f.type)) {
+        alert(`Tipo não suportado: ${f.name}`); return;
+      }
+      if (f.size > maxSize) {
+        alert(`${f.name} é muito grande. Máximo 50MB.`); return;
+      }
+      if (arquivosAnexos.length >= 5) {
+        alert('Máximo de 5 arquivos por orçamento.'); return;
+      }
+      arquivosAnexos.push(f);
+    });
+    renderPreviews();
+    // Reset input para permitir selecionar o mesmo arquivo novamente
+    document.getElementById('orc-anexos').value = '';
+  }
+
+  function renderPreviews() {
+    const container = document.getElementById('preview-anexos');
+    if (!container) return;
+    container.innerHTML = '';
+    arquivosAnexos.forEach((f, i) => {
+      const url = URL.createObjectURL(f);
+      const isVideo = f.type.startsWith('video/');
+      const div = document.createElement('div');
+      div.className = 'thumb-item';
+      div.innerHTML = isVideo
+        ? `<video src="${url}" muted style="width:100%;height:100%;object-fit:cover"></video>
+           <span class="thumb-video-icon">▶ vídeo</span>`
+        : `<img src="${url}" alt="preview"/>`;
+      const btn = document.createElement('button');
+      btn.className = 'thumb-del';
+      btn.textContent = '✕';
+      btn.onclick = (e) => { e.stopPropagation(); arquivosAnexos.splice(i,1); renderPreviews(); };
+      div.appendChild(btn);
+      container.appendChild(div);
+    });
+    // Mostrar/esconder área de upload
+    const area = document.getElementById('area-upload');
+    if (area) area.style.display = arquivosAnexos.length >= 5 ? 'none' : 'block';
+  }
+
+  async function uploadAnexos(orcamentoId) {
+    if (!arquivosAnexos.length) return [];
+    const urls = [];
+    for (const arquivo of arquivosAnexos) {
+      try {
+        const ext  = arquivo.name.split('.').pop().toLowerCase();
+        const nome = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        const path = `${orcamentoId}/${nome}`;
+
+        // Supabase Storage usa PUT para upload
+        const r = await fetch(`${SUPA_URL}/storage/v1/object/anexos-orcamentos/${path}`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPA_KEY,
+            'Authorization': `Bearer ${SUPA_KEY}`,
+            'Content-Type': arquivo.type,
+            'x-upsert': 'true'
+          },
+          body: arquivo
+        });
+
+        const json = await r.json();
+        console.log('[upload]', r.status, json);
+
+        if (r.ok) {
+          const url = `${SUPA_URL}/storage/v1/object/public/anexos-orcamentos/${path}`;
+          urls.push(url);
+          console.log('[upload OK]', url);
+        } else {
+          console.error('[upload ERRO]', json);
+        }
+      } catch(e) {
+        console.error('[upload EXCEPTION]', e);
+      }
+    }
+    return urls;
+  }
+
+  /* ── Carregar depoimentos aprovados do banco ── */
+  async function carregarDepoimentos() {
+    try {
+      const r = await fetch(
+        `${SUPA_URL}/rest/v1/depoimentos?aprovado=eq.true&order=criado_em.desc`,
+        { headers: HDRS }
+      );
+      const lista = await r.json();
+      const container = document.getElementById('deps-aprovados');
+      if (!Array.isArray(lista) || lista.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = lista.map(d => {
+        const iniciais = d.nome.split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase();
+        const ests = '★'.repeat(d.estrelas) + '☆'.repeat(5-d.estrelas);
+        return `<div class="card-depoimento" style="animation:subirFadeIn .5s ease both">
+          <div class="estrelas">${ests}</div>
+          <p>${d.texto.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>
+          <div class="avaliador">
+            <div class="avatar">${iniciais}</div>
+            <div class="info-avaliador">
+              <strong>${d.nome.replace(/</g,'&lt;')}</strong>
+              <span>${d.servico_desc ? d.servico_desc.replace(/</g,'&lt;') : 'Cliente'}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) {
+      document.getElementById('deps-aprovados').innerHTML = '';
+      console.warn('Depoimentos não carregados:', e);
+    }
+  }
+
+  carregarDepoimentos();
 
   /* ── Revelar ao rolar ── */
   const observador = new IntersectionObserver((entradas) => {
@@ -1123,7 +1357,7 @@
 
   /* ── MODAL DE ORÇAMENTO ── */
   const orc = {
-    etapa: 1, dispositivo: '', servicos: [],
+    etapa: 1, dispositivo: '', servicos: [], anexos: [],
     nome: '', tel: '', marca: '', modelo: '', problema: '', urgencia: '', local: '',
     tecnico: '5541999911181', tecnicoNome: 'Reginaldo'
   };
@@ -1163,7 +1397,7 @@
   function selecionarChip(el, campo) {
     el.closest('.chips-urgencia').querySelectorAll('.chip').forEach(c => c.classList.remove('selecionado'));
     el.classList.add('selecionado');
-    orc[campo] = el.textContent.trim();
+    orc[campo] = el.dataset.valor || el.textContent.trim();
   }
 
   function selecionarTecnico(el, num, nome) {
@@ -1225,13 +1459,13 @@
   }
 
   async function enviarOrcamento() {
-    /* Salva no Supabase antes de abrir o WhatsApp */
     const btnEnviar = document.querySelector('.btn-enviar-orc');
-    if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = 'Salvando...'; }
+    if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = 'Enviando...'; }
 
     const clienteId = await garantirCliente(orc.nome, orc.tel, orc.local);
 
-    await supaInsert('orcamentos', {
+    // Salva orçamento primeiro para ter o ID
+    const orcSalvo = await supaInsert('orcamentos', {
       cliente_id:  clienteId,
       dispositivo: orc.dispositivo,
       marca:       orc.marca || null,
@@ -1240,8 +1474,25 @@
       problema:    orc.problema,
       urgencia:    orc.urgencia || null,
       tecnico:     orc.tecnicoNome,
-      status:      'novo'
+      status:      'novo',
+      anexos:      []
     });
+
+    // Faz upload dos anexos se houver
+    if (arquivosAnexos.length > 0 && orcSalvo?.id) {
+      if (btnEnviar) btnEnviar.textContent = `Enviando ${arquivosAnexos.length} arquivo(s)...`;
+      const urls = await uploadAnexos(orcSalvo.id);
+      if (urls.length > 0) {
+        // Atualiza o orçamento com as URLs dos anexos
+        await fetch(`${SUPA_URL}/rest/v1/orcamentos?id=eq.${orcSalvo.id}`, {
+          method: 'PATCH',
+          headers: { ...HDRS, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ anexos: urls })
+        });
+      }
+      arquivosAnexos = [];
+      renderPreviews();
+    }
 
     /* Monta e abre o WhatsApp */
     const msg = [

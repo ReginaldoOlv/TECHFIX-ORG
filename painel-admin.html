@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TechFix — Painel Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --roxo:      #9b5de5;
+      --roxo-c:    #c77dff;
+      --roxo-e:    #6a0dad;
+      --fundo:     #0a0a0f;
+      --fundo2:    #100d1a;
+      --card:      #1a1428;
+      --texto:     #f0eaff;
+      --suave:     #8b80a8;
+      --borda:     rgba(155,93,229,0.2);
+      --verde:     #25D366;
+      --laranja:   #f59e0b;
+      --vermelho:  #ef4444;
+      --azul:      #3b82f6;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(--texto); min-height: 100vh; }
+    h1,h2,h3,h4 { font-family: 'Space Grotesk', sans-serif; }
+
+    /* LOGIN */
+    #tela-login {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(107,22,200,0.25) 0%, transparent 70%), var(--fundo);
+    }
+    .login-box {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 20px;
+      padding: 2.5rem 2rem; width: 100%; max-width: 380px;
+    }
+    .login-logo {
+      font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 700;
+      background: linear-gradient(90deg, var(--roxo-c), var(--roxo));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: .3rem;
+    }
+    .login-logo span { color: white; -webkit-text-fill-color: white; }
+    .login-box p { color: var(--suave); font-size: .85rem; margin-bottom: 1.8rem; }
+    .l-campo { display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1rem; }
+    .l-campo label { font-size: .78rem; color: var(--suave); font-weight: 600; }
+    .l-campo input {
+      background: var(--fundo2); border: 1px solid var(--borda); border-radius: 10px;
+      padding: .7rem 1rem; color: var(--texto); font-family: 'Nunito', sans-serif; font-size: .95rem; outline: none; transition: border-color .2s;
+    }
+    .l-campo input:focus { border-color: var(--roxo); }
+    .btn-login {
+      width: 100%; padding: .8rem; border-radius: 10px; border: none;
+      background: linear-gradient(135deg, var(--roxo), var(--roxo-e));
+      color: #fff; font-weight: 700; font-size: .95rem; cursor: pointer;
+      font-family: 'Nunito', sans-serif; transition: opacity .2s; margin-top: .5rem;
+    }
+    .btn-login:hover { opacity: .9; }
+    .login-erro {
+      margin-top: .8rem; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+      color: #f87171; padding: .6rem .9rem; border-radius: 8px; font-size: .83rem; display: none;
+    }
+    .login-erro.vis { display: block; }
+
+    /* APP */
+    #app { display: none; }
+
+    .sidebar {
+      position: fixed; top: 0; left: 0; width: 220px; height: 100vh;
+      background: var(--fundo2); border-right: 1px solid var(--borda);
+      display: flex; flex-direction: column; z-index: 50;
+    }
+    .sb-logo {
+      padding: 1.4rem 1.3rem; border-bottom: 1px solid var(--borda);
+      font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700;
+      background: linear-gradient(90deg, var(--roxo-c), var(--roxo));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .sb-logo span { color: white; -webkit-text-fill-color: white; }
+    .sb-logo small { display: block; font-size: .62rem; color: var(--suave); -webkit-text-fill-color: var(--suave); font-family: 'Nunito', sans-serif; font-weight: 400; margin-top: .15rem; }
+    .sb-menu { flex: 1; padding: .8rem 0; overflow-y: auto; }
+    .mi {
+      display: flex; align-items: center; gap: .7rem; padding: .72rem 1.3rem;
+      cursor: pointer; color: var(--suave); font-size: .88rem; font-weight: 500;
+      border-left: 3px solid transparent; transition: all .2s;
+    }
+    .mi:hover { background: rgba(155,93,229,0.07); color: var(--texto); }
+    .mi.ativo { background: rgba(155,93,229,0.12); color: var(--roxo-c); border-left-color: var(--roxo-c); }
+    .mi .ico { font-size: 1rem; width: 18px; text-align: center; }
+    .sb-foot { padding: 1rem 1.3rem; border-top: 1px solid var(--borda); }
+    .btn-sair {
+      width: 100%; padding: .5rem; border-radius: 8px; border: 1px solid var(--borda);
+      background: transparent; color: var(--suave); font-size: .8rem; cursor: pointer;
+      font-family: 'Nunito', sans-serif; transition: all .2s;
+    }
+    .btn-sair:hover { border-color: var(--vermelho); color: var(--vermelho); }
+
+    .conteudo { margin-left: 220px; padding: 2rem 2.5rem; min-height: 100vh; }
+    .page { display: none; }
+    .page.ativa { display: block; }
+
+    .ph { margin-bottom: 1.8rem; }
+    .ph h2 { font-size: 1.55rem; font-weight: 700; }
+    .ph p  { color: var(--suave); font-size: .85rem; margin-top: .3rem; }
+
+    /* MÉTRICAS */
+    .metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .met {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 14px; padding: 1.2rem 1.4rem;
+    }
+    .met-l { font-size: .72rem; color: var(--suave); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .45rem; }
+    .met-v { font-size: 1.9rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+    .met-s { font-size: .75rem; color: var(--suave); margin-top: .25rem; }
+    .met.roxo   .met-v { color: var(--roxo-c); }
+    .met.verde  .met-v { color: var(--verde); }
+    .met.lar    .met-v { color: var(--laranja); }
+    .met.azul   .met-v { color: var(--azul); }
+
+    /* TABELA */
+    .tc { background: var(--card); border: 1px solid var(--borda); border-radius: 16px; overflow: hidden; margin-bottom: 1.5rem; }
+    .tc-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.3rem; border-bottom: 1px solid var(--borda); flex-wrap: wrap; gap: .7rem;
+    }
+    .tc-head h3 { font-size: .95rem; font-weight: 700; }
+    .tc-head .sub { font-size: .75rem; color: var(--suave); margin-top: .1rem; }
+    .filtros { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .f-sel, .f-inp {
+      background: var(--fundo2); border: 1px solid var(--borda); border-radius: 8px;
+      padding: .38rem .75rem; color: var(--texto); font-family: 'Nunito', sans-serif; font-size: .8rem; outline: none;
+    }
+    .f-inp { width: 190px; }
+    .f-inp::placeholder { color: var(--suave); }
+    .f-sel:focus, .f-inp:focus { border-color: var(--roxo); }
+
+    .ts { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .845rem; }
+    thead th {
+      padding: .7rem 1rem; text-align: left; font-size: .7rem;
+      text-transform: uppercase; letter-spacing: .05em; color: var(--suave);
+      border-bottom: 1px solid var(--borda); white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid rgba(155,93,229,0.07); transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(155,93,229,0.04); }
+    tbody td { padding: .75rem 1rem; vertical-align: middle; }
+    .cel-nome { font-weight: 600; }
+    .cel-suave { color: var(--suave); font-size: .8rem; }
+
+    .badge {
+      display: inline-block; padding: .2rem .65rem; border-radius: 50px;
+      font-size: .7rem; font-weight: 700; letter-spacing: .02em; white-space: nowrap;
+    }
+    .b-novo     { background: rgba(59,130,246,0.15);  color: #60a5fa; }
+    .b-andamento{ background: rgba(245,158,11,0.15);  color: #fbbf24; }
+    .b-concluido{ background: rgba(37,211,102,0.15);  color: #4ade80; }
+    .b-cancelado{ background: rgba(239,68,68,0.15);   color: #f87171; }
+    .b-aprovado { background: rgba(37,211,102,0.15);  color: #4ade80; }
+    .b-pendente { background: rgba(245,158,11,0.15);  color: #fbbf24; }
+
+    .urg-urgente   { color: #f87171; font-weight: 700; font-size: .8rem; }
+    .urg-semana    { color: #fbbf24; font-size: .8rem; }
+    .urg-sempressa { color: #4ade80; font-size: .8rem; }
+
+    .est { color: #f5a623; font-size: .78rem; letter-spacing: 1px; }
+
+    .ba {
+      background: none; border: 1px solid var(--borda); border-radius: 6px;
+      padding: .28rem .6rem; color: var(--suave); cursor: pointer; font-size: .75rem;
+      font-family: 'Nunito', sans-serif; transition: all .2s;
+    }
+    .ba:hover { border-color: var(--roxo); color: var(--roxo-c); }
+    .ba.g:hover { border-color: var(--verde); color: var(--verde); }
+    .ba.r:hover { border-color: var(--vermelho); color: var(--vermelho); }
+
+    .ev { text-align: center; padding: 2.5rem 1rem; color: var(--suave); }
+    .ev-i { font-size: 2.2rem; margin-bottom: .7rem; }
+    .ev p { font-size: .87rem; }
+
+    .ld { text-align: center; padding: 1.8rem; color: var(--suave); font-size: .88rem; }
+    .sp {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2px solid var(--borda); border-top-color: var(--roxo);
+      border-radius: 50%; animation: gir .7s linear infinite;
+      vertical-align: middle; margin-right: .5rem;
+    }
+    @keyframes gir { to { transform: rotate(360deg); } }
+
+    /* MODAL DETALHES */
+    .modal-det {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200;
+      display: none; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-det.ab { display: flex; }
+    .det-box {
+      background: var(--fundo2); border: 1px solid var(--borda); border-radius: 20px;
+      padding: 1.8rem; max-width: 540px; width: 100%; max-height: 90vh; overflow-y: auto;
+    }
+    .det-box h3 { font-size: 1.1rem; margin-bottom: 1.2rem; }
+    .det-l {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: .45rem 0; border-bottom: 1px solid var(--borda); font-size: .85rem;
+    }
+    .det-l:last-of-type { border-bottom: none; }
+    .det-l span:first-child { color: var(--suave); min-width: 120px; }
+    .det-l span:last-child  { font-weight: 600; text-align: right; flex: 1; margin-left: .5rem; }
+    .det-obs { margin-top: 1rem; }
+    .det-obs label { font-size: .78rem; color: var(--suave); font-weight: 600; display: block; margin-bottom: .4rem; }
+    /* Galeria de anexos no modal */
+    .galeria-anexos { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+    .anexo-item {
+      width: 80px; height: 80px; border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--borda); cursor: pointer; position: relative;
+      transition: transform .2s;
+    }
+    .anexo-item:hover { transform: scale(1.05); }
+    .anexo-item img  { width: 100%; height: 100%; object-fit: cover; }
+    .anexo-item video{ width: 100%; height: 100%; object-fit: cover; }
+    .anexo-video-badge {
+      position: absolute; bottom: 3px; left: 3px;
+      background: rgba(0,0,0,0.65); color: #fff; font-size: .6rem;
+      border-radius: 4px; padding: 1px 4px;
+    }
+
+    /* Lightbox */
+    #lightbox {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.92); align-items: center; justify-content: center; flex-direction: column;
+    }
+    #lightbox.ab { display: flex; }
+    #lightbox img, #lightbox video {
+      max-width: 92vw; max-height: 85vh; border-radius: 12px; object-fit: contain;
+    }
+    #lightbox-close {
+      position: absolute; top: 1.2rem; right: 1.5rem;
+      background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; line-height: 1;
+    }
+    #lightbox-nav {
+      display: flex; gap: 1rem; margin-top: 1rem;
+    }
+    #lightbox-nav button {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; border-radius: 8px; padding: .4rem 1.2rem; cursor: pointer; font-size: 1rem;
+    }
+    #lightbox-nav button:hover { background: rgba(255,255,255,0.2); }
+    #lightbox-counter { color: rgba(255,255,255,0.5); font-size: .8rem; margin-top: .4rem; }
+
+    .det-obs textarea {
+      width: 100%; background: var(--card); border: 1px solid var(--borda); border-radius: 8px;
+      padding: .6rem .8rem; color: var(--texto); font-family: 'Nunito', sans-serif;
+      font-size: .85rem; outline: none; resize: vertical; min-height: 70px; transition: border-color .2s;
+    }
+    .det-obs textarea:focus { border-color: var(--roxo); }
+
+    .det-acoes { display: flex; gap: .6rem; margin-top: 1.1rem; flex-wrap: wrap; }
+    .btn-st {
+      flex: 1; min-width: 110px; padding: .55rem; border-radius: 8px; border: none;
+      font-weight: 700; font-size: .78rem; cursor: pointer; font-family: 'Nunito', sans-serif; transition: opacity .2s;
+    }
+    .btn-st:hover { opacity: .8; }
+    .st-and { background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .st-con { background: rgba(37,211,102,0.18); color: #4ade80; border: 1px solid rgba(37,211,102,0.3); }
+    .st-can { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .btn-fdet {
+      background: transparent; border: 1px solid var(--borda); color: var(--suave);
+      padding: .55rem 1rem; border-radius: 8px; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-weight: 600; transition: all .2s;
+    }
+    .btn-fdet:hover { border-color: var(--roxo); color: var(--texto); }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+      background: var(--card); border: 1px solid var(--borda); border-radius: 12px;
+      padding: .85rem 1.2rem; font-size: .85rem; font-weight: 600;
+      display: flex; align-items: center; gap: .5rem;
+      transform: translateY(80px); opacity: 0; transition: all .3s; pointer-events: none;
+    }
+    .toast.vis { transform: translateY(0); opacity: 1; }
+    .toast.v { border-color: rgba(37,211,102,0.4); color: #4ade80; }
+    .toast.r { border-color: rgba(239,68,68,0.4); color: #f87171; }
+
+    /* FORM NOVO SERVIÇO */
+    .form-serv {
+      background: var(--card); border: 1px solid var(--borda); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .form-serv h4 { font-size: .95rem; margin-bottom: 1rem; }
+    .fs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .fs-campo { display: flex; flex-direction: column; gap: .3rem; }
+    .fs-campo label { font-size: .75rem; color: var(--suave); font-weight: 600; }
+    .fs-campo input, .fs-campo select, .fs-campo textarea {
+      background: var(--fundo2); border: 1px solid var(--borda); border-radius: 8px;
+      padding: .6rem .8rem; color: var(--texto); font-family: 'Nunito', sans-serif; font-size: .85rem; outline: none; transition: border-color .2s;
+    }
+    .fs-campo input:focus, .fs-campo select:focus { border-color: var(--roxo); }
+    .fs-campo select option { background: var(--fundo2); }
+    .btn-add-serv {
+      margin-top: 1rem; background: linear-gradient(135deg, var(--roxo), var(--roxo-e));
+      border: none; color: #fff; padding: .65rem 1.5rem; border-radius: 8px;
+      font-weight: 700; font-size: .88rem; cursor: pointer; font-family: 'Nunito', sans-serif; transition: opacity .2s;
+    }
+    .btn-add-serv:hover { opacity: .9; }
+
+    /* ── RESPONSIVO MOBILE ──────────────────────────────── */
+    @media (max-width: 768px) {
+
+      /* Layout geral */
+      body { font-size: 14px; }
+      #app { flex-direction: column; }
+
+      /* Sidebar vira barra inferior */
+      .sidebar {
+        width: 100%; height: auto; position: fixed; bottom: 0; left: 0;
+        top: auto; flex-direction: row; padding: .5rem .5rem .6rem;
+        border-right: none; border-top: 1px solid var(--borda);
+        z-index: 100; gap: 0;
+      }
+      .sb-logo { display: none; }
+      .sb-menu { flex-direction: row; width: 100%; justify-content: space-around; gap: 0; }
+      .mi { flex-direction: column; align-items: center; padding: .4rem .3rem;
+            font-size: .62rem; gap: .15rem; border-radius: 10px; min-width: 0; flex: 1; }
+      .mi .ico { font-size: 1.2rem; }
+      .sb-foot { display: none; }
+
+      /* Conteúdo não fica atrás da sidebar */
+      .conteudo { margin-left: 0; padding: .8rem .8rem 5rem; }
+
+      /* Métricas em 2 colunas */
+      .metricas { grid-template-columns: 1fr 1fr; gap: .6rem; }
+      .met { padding: .8rem 1rem; }
+      .met-v { font-size: 1.6rem; }
+
+      /* Tabelas — scroll horizontal */
+      .ts { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .ts table { min-width: 600px; }
+      thead th, tbody td { padding: .5rem .6rem; font-size: .75rem; }
+      .cel-nome { max-width: 100px; }
+
+      /* Filtros empilhados */
+      .tc-head { flex-direction: column; gap: .6rem; align-items: stretch; }
+      .filtros { flex-direction: column; gap: .5rem; }
+      .f-inp, .f-sel { width: 100%; }
+
+      /* Formulário de serviço */
+      .fs-grid { grid-template-columns: 1fr; }
+      .form-serv { padding: 1rem; }
+
+      /* Modal de detalhes — tela cheia no mobile */
+      .det-box {
+        width: 100%; max-width: 100%; margin: 0;
+        border-radius: 20px 20px 0 0;
+        position: fixed; bottom: 0; left: 0; right: 0;
+        max-height: 90vh; overflow-y: auto;
+        padding: 1.2rem 1rem 2rem;
+      }
+      .modal-det { align-items: flex-end; }
+      .det-acoes { flex-direction: column; }
+      .det-acoes button, .btn-fdet, .btn-st { width: 100%; }
+
+      /* Galeria de anexos menor */
+      .anexo-item { width: 60px; height: 60px; }
+
+      /* Page header */
+      .ph { margin-bottom: 1rem; }
+      .ph h2 { font-size: 1.1rem; }
+      .ph p  { font-size: .78rem; }
+
+      /* Botões de ação menores */
+      .ba { padding: .3rem .6rem; font-size: .72rem; }
+      .btn-add-serv { padding: .7rem; font-size: .88rem; }
+
+      /* Tabela de clientes sem coluna de pedidos */
+      td[style*="display:flex"] { flex-wrap: wrap; }
+    }
+
+    @media (max-width: 400px) {
+      .metricas { grid-template-columns: 1fr; }
+      .mi { font-size: .55rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="tela-login">
+  <div class="login-box">
+    <div class="login-logo">Tech<span>Fix</span></div>
+    <p>Painel administrativo — acesso restrito</p>
+    <div class="l-campo">
+      <label>E-mail</label>
+      <input type="email" id="l-email" placeholder="admin@techfix.com.br"/>
+    </div>
+    <div class="l-campo">
+      <label>Senha</label>
+      <input type="password" id="l-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()"/>
+    </div>
+    <button class="btn-login" onclick="login()">Entrar</button>
+    <div class="login-erro" id="l-erro"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sb-logo">Tech<span>Fix</span><small>Painel Admin</small></div>
+    <nav class="sb-menu">
+      <div class="mi ativo"   data-pg="dashboard"   onclick="ir(this)"><span class="ico">📊</span> Dashboard</div>
+      <div class="mi"         data-pg="orcamentos"   onclick="ir(this)"><span class="ico">📋</span> Orçamentos</div>
+      <div class="mi"         data-pg="clientes"     onclick="ir(this)"><span class="ico">👥</span> Clientes</div>
+      <div class="mi"         data-pg="servicos"     onclick="ir(this)"><span class="ico">🔧</span> Serviços</div>
+      <div class="mi"         data-pg="depoimentos"  onclick="ir(this)"><span class="ico">⭐</span> Depoimentos</div>
+    </nav>
+    <div class="sb-foot">
+      <div style="font-size:.72rem;color:var(--suave);margin-bottom:.5rem;text-align:center" id="user-label"></div>
+      <button class="btn-sair" onclick="sair()">↩ Sair</button>
+    </div>
+  </aside>
+
+  <main class="conteudo">
+
+    <!-- DASHBOARD -->
+    <div class="page ativa" id="page-dashboard">
+      <div class="ph"><h2>Dashboard</h2><p id="saudacao">Bem-vindo ao painel TechFix</p></div>
+      <div class="metricas">
+        <div class="met roxo"><div class="met-l">Orçamentos novos</div><div class="met-v" id="m1">—</div><div class="met-s">Aguardando atendimento</div></div>
+        <div class="met lar"> <div class="met-l">Em andamento</div>   <div class="met-v" id="m2">—</div><div class="met-s">Serviços em execução</div></div>
+        <div class="met verde"><div class="met-l">Concluídos</div>    <div class="met-v" id="m3">—</div><div class="met-s">Total histórico</div></div>
+        <div class="met azul"><div class="met-l">Clientes</div>       <div class="met-v" id="m4">—</div><div class="met-s">Cadastrados</div></div>
+      </div>
+      <div class="tc">
+        <div class="tc-head"><div><h3>Últimos orçamentos</h3><div class="sub">5 mais recentes</div></div></div>
+        <div class="ts"><table>
+          <thead><tr><th>Cliente</th><th>Dispositivo</th><th>Serviços</th><th>Técnico</th><th>Urgência</th><th>Status</th><th>Data</th></tr></thead>
+          <tbody id="dash-tb"><tr><td colspan="7"><div class="ld"><span class="sp"></span>Carregando...</div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ORÇAMENTOS -->
+    <div class="page" id="page-orcamentos">
+      <div class="ph"><h2>Orçamentos</h2><p>Pedidos recebidos pelo formulário do site</p></div>
+      <div class="tc">
+        <div class="tc-head">
+          <div><h3>Todos os orçamentos</h3></div>
+          <div class="filtros">
+            <input class="f-inp" placeholder="🔍 Buscar cliente..." oninput="buscaOrc=this.value.toLowerCase();renderOrc()"/>
+            <select id="sel-status-orc" class="f-sel" onchange="filtroStatusOrc=this.value;renderOrc()">
+              <option value="">Todos os status</option>
+              <option value="novo">Novo</option>
+              <option value="em_andamento">Em andamento</option>
+              <option value="concluido">Concluído</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="ts"><table>
+          <thead><tr><th>Cliente</th><th>WhatsApp</th><th>Dispositivo</th><th>Serviços</th><th>Urgência</th><th>Técnico</th><th>Status</th><th>Data</th><th></th></tr></thead>
+          <tbody id="tb-orc"><tr><td colspan="9"><div class="ld"><span class="sp"></span>Carregando...</div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="page" id="page-clientes">
+      <div class="ph"><h2>Clientes</h2><p>Prontuário de todos os clientes cadastrados</p></div>
+      <div class="tc">
+        <div class="tc-head">
+          <div><h3>Base de clientes</h3></div>
+          <div class="filtros">
+            <input id="inp-busca-cli" class="f-inp" placeholder="🔍 Buscar nome ou WhatsApp..." oninput="renderCli()"/>
+          </div>
+        </div>
+        <div class="ts"><table>
+          <thead><tr><th>Nome</th><th>WhatsApp</th><th>Cidade</th><th>Cadastrado em</th><th></th></tr></thead>
+          <tbody id="tb-cli"><tr><td colspan="5"><div class="ld"><span class="sp"></span>Carregando...</div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- SERVIÇOS -->
+    <div class="page" id="page-servicos">
+      <div class="ph"><h2>Serviços Realizados</h2><p>Histórico de atendimentos</p></div>
+
+      <!-- Formulário para adicionar novo serviço -->
+      <div class="form-serv" id="form-serv-topo">
+        <h4>➕ Registrar novo serviço</h4>
+        <input type="hidden" id="fs-orc-id" value=""/>
+        <input type="hidden" id="fs-cli-id" value=""/>
+        <div class="fs-grid">
+          <div class="fs-campo">
+            <label>Cliente (WhatsApp)</label>
+            <input type="text" id="fs-wpp" placeholder="41988880001"/>
+          </div>
+          <div class="fs-campo">
+            <label>Descrição do serviço *</label>
+            <input type="text" id="fs-desc" placeholder="Ex: Troca de tela Dell Inspiron"/>
+          </div>
+          <div class="fs-campo">
+            <label>Dispositivo</label>
+            <input type="text" id="fs-disp" placeholder="Notebook, Desktop..."/>
+          </div>
+          <div class="fs-campo">
+            <label>Marca / Modelo</label>
+            <input type="text" id="fs-marca" placeholder="Dell Inspiron 15"/>
+          </div>
+          <div class="fs-campo">
+            <label>Técnico</label>
+            <select id="fs-tec">
+              <option value="Reginaldo">Reginaldo</option>
+              <option value="Leonardo">Leonardo</option>
+            </select>
+          </div>
+          <div class="fs-campo">
+            <label>Valor cobrado (R$)</label>
+            <input type="number" id="fs-val" placeholder="0.00" step="0.01"/>
+          </div>
+          <div class="fs-campo">
+            <label>Data de entrada</label>
+            <input type="date" id="fs-entrada"/>
+          </div>
+          <div class="fs-campo">
+            <label>Status</label>
+            <select id="fs-status">
+              <option value="em_andamento">Em andamento</option>
+              <option value="concluido">Concluído</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-add-serv" onclick="adicionarServico()">Registrar serviço</button>
+      </div>
+
+      <div class="tc">
+        <div class="tc-head">
+          <div><h3>Histórico</h3></div>
+          <div class="filtros">
+            <select id="sel-status-serv" class="f-sel" onchange="filtroStatusServ=this.value;renderServ()">
+              <option value="">Todos</option>
+              <option value="em_andamento">Em andamento</option>
+              <option value="concluido">Concluído</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="ts"><table>
+          <thead><tr><th>Cliente</th><th>Descrição</th><th>Dispositivo</th><th>Técnico</th><th>Valor</th><th>Entrada</th><th>Saída</th><th>Status</th><th></th></tr></thead>
+          <tbody id="tb-serv"><tr><td colspan="9"><div class="ld"><span class="sp"></span>Carregando...</div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- DEPOIMENTOS -->
+    <div class="page" id="page-depoimentos">
+      <div class="ph"><h2>Depoimentos</h2><p>Aprove avaliações antes de exibir no site</p></div>
+      <div class="tc">
+        <div class="tc-head">
+          <div><h3>Avaliações recebidas</h3></div>
+          <div class="filtros">
+            <select id="sel-dep-filtro" class="f-sel" onchange="filtroDep=this.value;renderDep()">
+              <option value="">Todos</option>
+              <option value="false">Pendentes</option>
+              <option value="true">Aprovados</option>
+            </select>
+          </div>
+        </div>
+        <div class="ts"><table>
+          <thead><tr><th>Nome</th><th>Serviço</th><th>Avaliação</th><th>Comentário</th><th>Status</th><th>Data</th><th></th></tr></thead>
+          <tbody id="tb-dep"><tr><td colspan="7"><div class="ld"><span class="sp"></span>Carregando...</div></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL DETALHES ORÇAMENTO -->
+<div class="modal-det" id="modal-det" onclick="if(event.target===this)fecharDet()">
+  <div class="det-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem">
+      <h3 style="margin:0">📋 Detalhes do orçamento</h3>
+      <button onclick="fecharDet()" style="background:none;border:none;color:var(--suave);font-size:1.3rem;cursor:pointer;line-height:1">✕</button>
+    </div>
+
+    <div id="det-corpo"></div>
+    <div id="det-anexos-area" style="display:none;margin-top:.8rem">
+      <div style="font-size:.78rem;color:var(--suave);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">📎 Anexos do cliente</div>
+      <div class="galeria-anexos" id="det-galeria"></div>
+    </div>
+
+    <!-- Observações — só quem é dono vê -->
+    <div id="det-obs-area" class="det-obs" style="display:none">
+      <label>📝 Observações internas (só você vê)</label>
+      <textarea id="det-obs" placeholder="Anote peças, valores, prazo estimado..."></textarea>
+    </div>
+
+    <!-- Aviso técnico de outro -->
+    <div id="det-aviso-lock" style="display:none;margin-top:1rem;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:.8rem 1rem;font-size:.84rem;color:#fbbf24">
+      🔒 Este orçamento é do técnico <strong id="det-tecnico-nome"></strong>. Você pode ver os detalhes, mas não pode fazer alterações.
+    </div>
+
+    <!-- Botões do dono -->
+    <div id="det-acoes-btn" class="det-acoes" style="display:none">
+      <button class="btn-st st-and" onclick="mudarStatus('em_andamento')">🟡 Em andamento</button>
+      <button class="btn-st st-con" onclick="mudarStatus('concluido')">✅ Concluído</button>
+      <button class="btn-st st-can" onclick="mudarStatus('cancelado')">❌ Cancelado</button>
+    </div>
+
+    <!-- Botão aceitar (só aparece se novo e for do técnico logado) -->
+    <div id="det-aceitar-area" style="display:none;margin-top:.7rem">
+      <button class="btn-st st-con" style="width:100%" onclick="aceitarDoBotao()">✓ Aceitar este orçamento</button>
+    </div>
+
+    <div style="margin-top:.8rem;display:flex;justify-content:flex-end">
+      <button class="btn-fdet" onclick="fecharDet()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="if(event.target===this)fecharLightbox()">
+  <button id="lightbox-close" onclick="fecharLightbox()">✕</button>
+  <div id="lightbox-media"></div>
+  <div id="lightbox-nav">
+    <button onclick="navLightbox(-1)">← Anterior</button>
+    <button onclick="navLightbox(1)">Próximo →</button>
+  </div>
+  <div id="lightbox-counter"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+  const SUPA_URL = 'https://pfigjyvhczzvcjseueoa.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmaWdqeXZoY3p6dmNqc2V1ZW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NTE1NTEsImV4cCI6MjA4NzQyNzU1MX0.tl8aNDsA8ITt50oielqRz5Oja6xjLIR2xT8Khk3AqGk';
+
+  let TOKEN = '', tecnicoLogado = '';
+  let orcamentos = [], clientes = [], servicos = [], depoimentos = [];
+  let orcAtivo = null;
+  let filtroStatusOrc = '', buscaOrc = '', filtroStatusServ = '', filtroDep = '';
+
+  // ── HEADERS ──────────────────────────────────────────────
+  function getHeaders(extra) {
+    const base = {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + (TOKEN || SUPA_KEY),
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    if (extra) Object.assign(base, extra);
+    return base;
+  }
+
+  // ── LOGIN ─────────────────────────────────────────────────
+  async function login() {
+    const email = document.getElementById('l-email').value.trim();
+    const senha = document.getElementById('l-senha').value;
+    const err   = document.getElementById('l-erro');
+    err.classList.remove('vis');
+    try {
+      const r = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY },
+        body: JSON.stringify({ email, password: senha })
+      });
+      const d = await r.json();
+      if (d.access_token) {
+        TOKEN = d.access_token;
+        const n = email.split('@')[0].toLowerCase();
+        tecnicoLogado = n.includes('reginaldo') ? 'Reginaldo' : n.includes('leonardo') ? 'Leonardo' : '';
+        document.getElementById('tela-login').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        const h = new Date().getHours();
+        document.getElementById('saudacao').textContent = `${h<12?'Bom dia':h<18?'Boa tarde':'Boa noite'}, ${email.split('@')[0]} 👋`;
+        document.getElementById('user-label').textContent = tecnicoLogado ? `🔧 ${tecnicoLogado}` : '👑 Admin';
+        document.getElementById('fs-entrada').value = new Date().toISOString().split('T')[0];
+        // Resetar filtros e selects
+        filtroStatusOrc = ''; buscaOrc = ''; filtroStatusServ = ''; filtroDep = '';
+        document.getElementById('sel-status-orc').value = '';
+        document.getElementById('sel-status-serv').value = '';
+        document.getElementById('sel-dep-filtro').value = '';
+        await carregarTudo();
+      } else {
+        err.textContent = d.error_description || 'E-mail ou senha inválidos.';
+        err.classList.add('vis');
+      }
+    } catch(e) {
+      err.textContent = 'Erro de conexão com o Supabase.';
+      err.classList.add('vis');
+    }
+  }
+  function sair() { TOKEN = ''; location.reload(); }
+
+  // ── NAVEGAÇÃO ─────────────────────────────────────────────
+  function ir(el) {
+    document.querySelectorAll('.mi').forEach(m => m.classList.remove('ativo'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('ativa'));
+    el.classList.add('ativo');
+    document.getElementById('page-' + el.dataset.pg).classList.add('ativa');
+  }
+
+  // ── DB ────────────────────────────────────────────────────
+  async function db(tabela, params = '') {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${tabela}?${params}`, { headers: getHeaders() });
+    const j = await r.json();
+    if (!r.ok) { console.error(`[db/${tabela}]`, j); return []; }
+    return Array.isArray(j) ? j : [];
+  }
+  async function dbPatch(tabela, id, dados) {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${tabela}?id=eq.${id}`, {
+      method: 'PATCH', headers: getHeaders({'Prefer': 'return=minimal'}), body: JSON.stringify(dados)
+    });
+    if (!r.ok) console.error(`[patch/${tabela}]`, await r.json());
+  }
+  async function dbPost(tabela, dados) {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${tabela}`, {
+      method: 'POST', headers: getHeaders({'Prefer': 'return=representation'}), body: JSON.stringify(dados)
+    });
+    const j = await r.json();
+    if (!r.ok) console.error(`[post/${tabela}]`, j);
+    return Array.isArray(j) ? j[0] : null;
+  }
+  async function dbDelete(tabela, id) {
+    await fetch(`${SUPA_URL}/rest/v1/${tabela}?id=eq.${id}`, { method: 'DELETE', headers: getHeaders() });
+  }
+
+  // ── CARREGAR TUDO ─────────────────────────────────────────
+  async function carregarTudo() {
+    try {
+      [orcamentos, clientes, servicos, depoimentos] = await Promise.all([
+        db('orcamentos',          'order=criado_em.desc'),
+        db('clientes',            'order=criado_em.desc'),
+        db('servicos_realizados', 'order=criado_em.desc'),
+        db('depoimentos',         'order=criado_em.desc')
+      ]);
+      console.log('[carregarTudo] orç:', orcamentos.length, 'cli:', clientes.length, 'serv:', servicos.length);
+      if (orcamentos.length === 0 && clientes.length === 0) {
+        toast('⚠️ Banco vazio ou erro de conexão. Verifique o console (F12).', 'r');
+      }
+    } catch(e) {
+      console.error('[carregarTudo] ERRO:', e);
+      toast('❌ Erro ao carregar dados: ' + e.message, 'r');
+    }
+    renderDashboard(); renderOrc(); renderCli(); renderServ(); renderDep();
+  }
+
+  // ── DASHBOARD ─────────────────────────────────────────────
+  function renderDashboard() {
+    const orc_meus = tecnicoLogado ? orcamentos.filter(o => o.tecnico === tecnicoLogado) : orcamentos;
+    const serv_meus = tecnicoLogado ? servicos.filter(s => s.tecnico === tecnicoLogado) : servicos;
+
+    document.getElementById('m1').textContent = orc_meus.filter(o => o.status === 'novo').length;
+    document.getElementById('m2').textContent = serv_meus.filter(s => s.status === 'em_andamento').length;
+    document.getElementById('m3').textContent = serv_meus.filter(s => s.status === 'concluido').length;
+    document.getElementById('m4').textContent = clientes.length;
+
+    const tb  = document.getElementById('dash-tb');
+    const ult = orc_meus.slice(0, 8);
+    if (!ult.length) { tb.innerHTML = vazio('Nenhum orçamento ainda'); return; }
+    // Garantir mapa atualizado
+    ult.forEach(o => { if (!window._orcMap) window._orcMap = {}; window._orcMap[o.id] = o; });
+
+    tb.innerHTML = ult.map(o => {
+      const cli = clientes.find(c => c.id === o.cliente_id);
+      return `<tr>
+        <td class="cel-nome">${cli?.nome || '—'}</td>
+        <td>${o.dispositivo}</td>
+        <td style="font-size:.78rem;max-width:160px">${(o.servicos || []).join(', ')}</td>
+        <td>${o.tecnico}</td>
+        <td>${urgBadge(o.urgencia)}</td>
+        <td>${badge(o.status)}</td>
+        <td class="cel-suave">${fmtData(o.criado_em)}</td>
+        <td><button class="ba" onclick="abrirDetById('${o.id}')">🔍 Ver</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── ORÇAMENTOS ────────────────────────────────────────────
+  // Mapa global para acessar objetos pelos botões
+  window._orcMap = {};
+
+  function renderOrc() {
+    const tb = document.getElementById('tb-orc');
+    let lista = [...orcamentos];
+
+    if (filtroStatusOrc) lista = lista.filter(o => o.status === filtroStatusOrc);
+    if (buscaOrc) lista = lista.filter(o => {
+      const cli = clientes.find(c => c.id === o.cliente_id);
+      return (cli?.nome || '').toLowerCase().includes(buscaOrc) ||
+             (cli?.whatsapp || '').includes(buscaOrc);
+    });
+
+    if (!lista.length) { tb.innerHTML = vazio('Nenhum orçamento encontrado'); return; }
+
+    // Limpa mapa e reconstrói
+    window._orcMap = {};
+    lista.forEach(o => { window._orcMap[o.id] = o; });
+
+    tb.innerHTML = lista.map(o => {
+      const cli         = clientes.find(c => c.id === o.cliente_id);
+      const ehMeu       = !tecnicoLogado || o.tecnico === tecnicoLogado;
+      const podeAceitar = o.status === 'novo' && ehMeu;
+      return `<tr style="${!ehMeu ? 'opacity:.65;' : ''}">
+        <td class="cel-nome">${cli?.nome || '—'}</td>
+        <td class="cel-suave">${fmtWpp(cli?.whatsapp || '')}</td>
+        <td>${o.dispositivo}${o.marca ? ' <span class="cel-suave">'+o.marca+'</span>' : ''}</td>
+        <td style="max-width:140px;font-size:.78rem">${(o.servicos || []).join(', ')}</td>
+        <td>${urgBadge(o.urgencia)}</td>
+        <td>${o.tecnico}</td>
+        <td>${badge(o.status)}</td>
+        <td class="cel-suave">${fmtData(o.criado_em)}</td>
+        <td style="display:flex;gap:.3rem;flex-wrap:wrap">
+          <button class="ba" onclick="abrirDetById('${o.id}')">🔍 Detalhes</button>
+          ${podeAceitar ? `<button class="ba g" onclick="aceitarById('${o.id}')">✓ Aceitar</button>` : ''}
+          ${!ehMeu ? '<span style="font-size:.7rem;color:var(--suave)">🔒</span>' : ''}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function abrirDetById(id) { abrirDet(window._orcMap[id]); }
+  function aceitarById(id)  { aceitarOrcamento(window._orcMap[id]); }
+
+  // ── ACEITAR → preenche form de serviço ───────────────────
+  async function aceitarOrcamento(o) {
+    const cli = clientes.find(c => c.id === o.cliente_id);
+    document.getElementById('fs-desc').value   = (o.servicos || []).join(', ');
+    document.getElementById('fs-disp').value   = o.dispositivo || '';
+    document.getElementById('fs-marca').value  = [o.marca, o.modelo].filter(Boolean).join(' ');
+    document.getElementById('fs-wpp').value    = cli?.whatsapp || '';
+    document.getElementById('fs-orc-id').value = o.id;
+    document.getElementById('fs-cli-id').value = o.cliente_id || '';
+    const sel = document.getElementById('fs-tec');
+    for (let opt of sel.options) if (opt.value === o.tecnico) { opt.selected = true; break; }
+    await dbPatch('orcamentos', o.id, { status: 'em_andamento' });
+    orcamentos = await db('orcamentos', 'order=criado_em.desc');
+    renderOrc(); renderDashboard();
+    document.querySelector('.mi[data-pg="servicos"]').click();
+    setTimeout(() => document.getElementById('form-serv-topo').scrollIntoView({ behavior: 'smooth' }), 200);
+    toast('📋 Dados puxados! Confira e registre o serviço.', 'v');
+  }
+
+  // ── CLIENTES ─────────────────────────────────────────────
+  function renderCli() {
+    const t  = (document.getElementById('inp-busca-cli')?.value || '').toLowerCase();
+    const tb = document.getElementById('tb-cli');
+    const lista = t ? clientes.filter(c =>
+      c.nome.toLowerCase().includes(t) || (c.whatsapp || '').includes(t)) : clientes;
+    if (!lista.length) { tb.innerHTML = vazio('Nenhum cliente encontrado'); return; }
+    tb.innerHTML = lista.map(c => {
+      const total = orcamentos.filter(o => o.cliente_id === c.id).length;
+      return `<tr>
+        <td class="cel-nome">${c.nome}</td>
+        <td>${fmtWpp(c.whatsapp)}</td>
+        <td class="cel-suave">${c.cidade || '—'}</td>
+        <td><span class="badge b-novo">${total} pedido${total !== 1 ? 's' : ''}</span></td>
+        <td class="cel-suave">${fmtData(c.criado_em)}</td>
+        <td><a href="https://wa.me/55${(c.whatsapp||'').replace(/\D/g,'')}" target="_blank" rel="noopener">
+          <button class="ba g">WhatsApp</button></a>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── SERVIÇOS ─────────────────────────────────────────────
+  function renderServ() {
+    const tb = document.getElementById('tb-serv');
+    let lista = [...servicos];
+    if (filtroStatusServ) lista = lista.filter(s => s.status === filtroStatusServ);
+    if (!lista.length) { tb.innerHTML = vazio('Nenhum serviço registrado'); return; }
+    tb.innerHTML = lista.map(s => {
+      const cli   = clientes.find(c => c.id === s.cliente_id);
+      const ehMeu = !tecnicoLogado || s.tecnico === tecnicoLogado;
+      return `<tr style="${!ehMeu ? 'opacity:.6;' : ''}">
+        <td class="cel-nome">${cli?.nome || '—'}</td>
+        <td>${s.descricao}</td>
+        <td class="cel-suave">${[s.dispositivo, s.marca].filter(Boolean).join(' ')}</td>
+        <td>${s.tecnico || '—'}</td>
+        <td>${s.valor_cobrado ? 'R$ ' + parseFloat(s.valor_cobrado).toFixed(2) : '—'}</td>
+        <td class="cel-suave">${s.data_entrada || '—'}</td>
+        <td class="cel-suave">${s.data_saida || '—'}</td>
+        <td>${badge(s.status)}</td>
+        <td style="display:flex;gap:.3rem;flex-wrap:wrap">
+          ${ehMeu && s.status === 'em_andamento' ? `<button class="ba g" onclick="concluirServico('${s.id}')">✓ Concluir</button>` : ''}
+          ${ehMeu ? `<button class="ba r" onclick="deletarServico('${s.id}')">🗑</button>` : '<span style="font-size:.7rem;color:var(--suave)">🔒</span>'}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function adicionarServico() {
+    const desc = document.getElementById('fs-desc').value.trim();
+    if (!desc) { toast('Preencha a descrição do serviço.', 'r'); return; }
+    const wpp   = document.getElementById('fs-wpp').value.trim().replace(/\D/g, '');
+    const cliId = document.getElementById('fs-cli-id').value ||
+                  clientes.find(c => (c.whatsapp || '').replace(/\D/g, '') === wpp)?.id || null;
+    const dados = {
+      cliente_id:   cliId,
+      orcamento_id: document.getElementById('fs-orc-id').value || null,
+      descricao:    desc,
+      dispositivo:  document.getElementById('fs-disp').value.trim(),
+      marca:        document.getElementById('fs-marca').value.trim(),
+      tecnico:      document.getElementById('fs-tec').value,
+      valor_cobrado:parseFloat(document.getElementById('fs-val').value) || null,
+      data_entrada: document.getElementById('fs-entrada').value || null,
+      status:       document.getElementById('fs-status').value
+    };
+    await dbPost('servicos_realizados', dados);
+    toast('✅ Serviço registrado!', 'v');
+    ['fs-desc','fs-disp','fs-marca','fs-val','fs-wpp','fs-orc-id','fs-cli-id'].forEach(id => document.getElementById(id).value = '');
+    servicos = await db('servicos_realizados', 'order=criado_em.desc');
+    renderServ(); renderDashboard();
+  }
+
+  async function concluirServico(id) {
+    await dbPatch('servicos_realizados', id, { status: 'concluido', data_saida: new Date().toISOString().split('T')[0] });
+    toast('✅ Serviço concluído!', 'v');
+    servicos = await db('servicos_realizados', 'order=criado_em.desc');
+    renderServ(); renderDashboard();
+  }
+
+  async function deletarServico(id) {
+    if (!confirm('Apagar este serviço do histórico?')) return;
+    await dbDelete('servicos_realizados', id);
+    toast('🗑 Serviço apagado.', 'v');
+    servicos = await db('servicos_realizados', 'order=criado_em.desc');
+    renderServ(); renderDashboard();
+  }
+
+  // ── DEPOIMENTOS ───────────────────────────────────────────
+  function renderDep() {
+    const tb = document.getElementById('tb-dep');
+    let lista = [...depoimentos];
+    if (filtroDep !== '') lista = lista.filter(d => String(d.aprovado) === filtroDep);
+    if (!lista.length) { tb.innerHTML = vazio('Nenhum depoimento encontrado'); return; }
+    tb.innerHTML = lista.map(d => `<tr>
+      <td class="cel-nome">${d.nome}</td>
+      <td class="cel-suave">${d.servico_desc || '—'}</td>
+      <td><span class="est">${'★'.repeat(d.estrelas)}${'☆'.repeat(5-d.estrelas)}</span></td>
+      <td style="max-width:200px;font-size:.82rem">${d.texto}</td>
+      <td>${d.aprovado ? '<span class="badge b-aprovado">Aprovado</span>' : '<span class="badge b-pendente">Pendente</span>'}</td>
+      <td class="cel-suave">${fmtData(d.criado_em)}</td>
+      <td style="display:flex;gap:.4rem">
+        ${!d.aprovado ? `<button class="ba g" onclick="aprovarDep('${d.id}')">✓ Aprovar</button>` : ''}
+        <button class="ba r" onclick="recusarDep('${d.id}')">🗑</button>
+      </td>
+    </tr>`).join('');
+  }
+
+  async function aprovarDep(id) {
+    await dbPatch('depoimentos', id, { aprovado: true });
+    toast('✅ Depoimento aprovado! Já aparece no site.', 'v');
+    depoimentos = await db('depoimentos', 'order=criado_em.desc');
+    renderDep();
+  }
+
+  async function recusarDep(id) {
+    if (!confirm('Remover este depoimento?')) return;
+    await dbDelete('depoimentos', id);
+    toast('🗑 Depoimento removido.', 'v');
+    depoimentos = await db('depoimentos', 'order=criado_em.desc');
+    renderDep();
+  }
+
+  // ── MODAL DETALHE ─────────────────────────────────────────
+  function abrirDet(o) {
+    orcAtivo = o;
+    const cli   = clientes.find(c => c.id === o.cliente_id);
+    const ehMeu = !tecnicoLogado || o.tecnico === tecnicoLogado;
+    const isNovo = o.status === 'novo';
+
+    // Montar corpo do modal
+    document.getElementById('det-corpo').innerHTML = `
+      <div class="det-l"><span>👤 Nome</span><span>${cli?.nome || '—'}</span></div>
+      <div class="det-l"><span>📞 WhatsApp</span><span>
+        <a href="https://wa.me/55${(cli?.whatsapp||'').replace(/\D/g,'')}" target="_blank" rel="noopener"
+           style="color:var(--verde);text-decoration:none">
+          ${fmtWpp(cli?.whatsapp || '—')} 💬
+        </a>
+      </span></div>
+      <div class="det-l"><span>📍 Cidade</span><span>${cli?.cidade || '—'}</span></div>
+      <div class="det-l"><span>💻 Dispositivo</span><span>${o.dispositivo}</span></div>
+      <div class="det-l"><span>🏷️ Marca/Modelo</span><span>${[o.marca,o.modelo].filter(Boolean).join(' ') || '—'}</span></div>
+      <div class="det-l"><span>🔧 Serviços</span><span>${(o.servicos || []).join(', ')}</span></div>
+      <div class="det-l"><span>⚠️ Problema</span><span style="max-width:200px;text-align:right">${o.problema}</span></div>
+      <div class="det-l"><span>⏱️ Urgência</span><span>${urgBadge(o.urgencia)}</span></div>
+      <div class="det-l"><span>👨‍🔧 Técnico</span><span>${o.tecnico}</span></div>
+      <div class="det-l"><span>📌 Status</span><span>${badge(o.status)}</span></div>
+      <div class="det-l"><span>📅 Recebido</span><span>${fmtData(o.criado_em)}</span></div>
+      ${o.observacoes ? `<div class="det-l"><span>📝 Obs.</span><span style="max-width:200px;text-align:right;color:var(--suave)">${o.observacoes}</span></div>` : ''}
+    `;
+
+    // Observações — todos veem, mas textarea desabilitada para quem não é dono
+    document.getElementById('det-obs-area').style.display = 'block';
+    document.getElementById('det-obs').disabled = !ehMeu;
+    document.getElementById('det-obs').style.opacity = ehMeu ? '1' : '0.6';
+    document.getElementById('det-obs').style.cursor = ehMeu ? 'text' : 'not-allowed';
+    document.getElementById('det-obs').value = o.observacoes || '';
+
+    // Aviso de lock para o outro técnico
+    document.getElementById('det-aviso-lock').style.display = (!ehMeu && tecnicoLogado) ? 'block' : 'none';
+    if (!ehMeu && tecnicoLogado) {
+      document.getElementById('det-tecnico-nome').textContent = o.tecnico;
+    }
+
+    // Botões de status — só o dono, e só se não for novo
+    document.getElementById('det-acoes-btn').style.display = (ehMeu && !isNovo) ? 'flex' : 'none';
+
+    // Botão aceitar — só se for novo e for do técnico logado (ou admin)
+    document.getElementById('det-aceitar-area').style.display = (ehMeu && isNovo) ? 'block' : 'none';
+
+    // ── Galeria de anexos ──────────────────────────────────
+    const anexos    = Array.isArray(o.anexos) ? o.anexos.filter(Boolean) : [];
+    const areaAnx   = document.getElementById('det-anexos-area');
+    const galeria   = document.getElementById('det-galeria');
+
+    if (anexos.length > 0) {
+      areaAnx.style.display = 'block';
+      window._lbUrls = anexos;
+      galeria.innerHTML = anexos.map((url, i) => {
+        const isVideo = /\.mp4|mov|avi|quicktime/i.test(url);
+        return isVideo
+          ? `<div class="anexo-item" onclick="abrirLightbox(${i})">
+               <video src="${url}" muted preload="metadata" style="width:100%;height:100%;object-fit:cover"></video>
+               <span class="anexo-video-badge">▶ vídeo</span>
+             </div>`
+          : `<div class="anexo-item" onclick="abrirLightbox(${i})">
+               <img src="${url}" alt="foto ${i+1}" loading="lazy" style="width:100%;height:100%;object-fit:cover"/>
+             </div>`;
+      }).join('');
+    } else {
+      areaAnx.style.display = 'none';
+      galeria.innerHTML = '';
+    }
+
+    document.getElementById('modal-det').classList.add('ab');
+  }
+
+  function aceitarDoBotao() {
+    if (!orcAtivo) return;
+    fecharDet();
+    aceitarOrcamento(orcAtivo);
+  }
+
+  function fecharDet() { document.getElementById('modal-det').classList.remove('ab'); }
+
+  async function mudarStatus(st) {
+    if (!orcAtivo) return;
+    await dbPatch('orcamentos', orcAtivo.id, { status: st, observacoes: document.getElementById('det-obs').value });
+    toast('✅ Status atualizado!', 'v');
+    fecharDet();
+    orcamentos = await db('orcamentos', 'order=criado_em.desc');
+    renderOrc(); renderDashboard();
+  }
+
+  // ── LIGHTBOX ─────────────────────────────────────────────
+  let _lbUrls = [], _lbIdx = 0;
+
+  function abrirLightbox(idx) {
+    _lbUrls = window._lbUrls || [];
+    _lbIdx  = idx;
+    renderLightbox();
+    document.getElementById('lightbox').classList.add('ab');
+    document.getElementById('lightbox-nav').style.display = _lbUrls.length > 1 ? 'flex' : 'none';
+  }
+
+  function fecharLightbox() {
+    document.getElementById('lightbox').classList.remove('ab');
+    document.getElementById('lightbox-media').innerHTML = '';
+  }
+
+  function navLightbox(dir) {
+    _lbIdx = (_lbIdx + dir + _lbUrls.length) % _lbUrls.length;
+    renderLightbox();
+  }
+
+  function renderLightbox() {
+    const url     = _lbUrls[_lbIdx];
+    const isVideo = url.match(/\.mp4|mov|avi|quicktime/i);
+    document.getElementById('lightbox-media').innerHTML = isVideo
+      ? `<video src="${url}" controls autoplay style="max-width:92vw;max-height:85vh;border-radius:12px"></video>`
+      : `<img src="${url}" alt="anexo"/>`;
+    document.getElementById('lightbox-counter').textContent =
+      _lbUrls.length > 1 ? `${_lbIdx + 1} / ${_lbUrls.length}` : '';
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────
+  function badge(st) {
+    const m = { novo:'b-novo', em_andamento:'b-andamento', concluido:'b-concluido', cancelado:'b-cancelado' };
+    const l = { novo:'Novo', em_andamento:'Em andamento', concluido:'Concluído', cancelado:'Cancelado' };
+    return `<span class="badge ${m[st]||''}">${l[st]||st}</span>`;
+  }
+  function urgBadge(u) {
+    if (!u) return '—';
+    const m = { 'Urgente':'urg-urgente','Esta semana':'urg-semana','Sem pressa':'urg-sempressa' };
+    return `<span class="${m[u]||''}">${u}</span>`;
+  }
+  function fmtData(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit' });
+  }
+  function fmtWpp(n) {
+    const d = (n||'').replace(/\D/g,'');
+    return d.length===11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : (n||'—');
+  }
+  function vazio(msg) {
+    return `<tr><td colspan="20"><div class="ev"><div class="ev-i">📭</div><p>${msg}</p></div></td></tr>`;
+  }
+  function toast(msg, tipo) {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.className = `toast ${tipo} vis`;
+    setTimeout(() => el.classList.remove('vis'), 3500);
+  }
+  // esc64 removido — usando _orcMap por id
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { fecharDet(); fecharLightbox(); } });
+</script>
+</body>
+</html>
