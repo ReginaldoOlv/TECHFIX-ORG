@@ -310,32 +310,36 @@
 
       /* ── SIDEBAR → barra inferior estilo app ── */
       .sidebar {
-        width: 100%; height: auto;
-        position: fixed; bottom: 0; left: 0; top: auto;
-        flex-direction: row; padding: .4rem .3rem env(safe-area-inset-bottom, .4rem);
-        border-right: none; border-top: 1px solid var(--borda);
-        z-index: 100; gap: 0; background: var(--fundo2);
+        width: 100% !important; height: 60px !important;
+        position: fixed !important; bottom: 0 !important; left: 0 !important; top: auto !important;
+        flex-direction: row !important;
+        padding: 0 !important;
+        border-right: none !important; border-top: 1px solid var(--borda) !important;
+        z-index: 1000 !important; background: var(--fundo2) !important;
       }
-      .sb-logo { display: none; }
+      .sb-logo { display: none !important; }
       .sb-menu {
-        flex-direction: row; width: 100%;
-        justify-content: space-around; gap: 0;
+        flex-direction: row !important; width: 100% !important;
+        justify-content: space-around !important; gap: 0 !important;
+        padding: 0 !important; align-items: center !important;
       }
       .mi {
-        flex-direction: column; align-items: center;
-        padding: .35rem .2rem; font-size: .6rem; gap: .1rem;
-        border-radius: 10px; min-width: 0; flex: 1;
-        border-left: none; border-bottom: 2px solid transparent;
+        flex-direction: column !important; align-items: center !important;
+        justify-content: center !important;
+        padding: .3rem .2rem !important; font-size: .58rem !important;
+        gap: .1rem !important; border-radius: 8px !important;
+        min-width: 0 !important; flex: 1 !important; height: 100% !important;
+        border-left: none !important; border-bottom: 2px solid transparent !important;
       }
       .mi.ativo {
-        border-left: none; border-bottom-color: var(--roxo-c);
-        background: rgba(155,93,229,0.1);
+        border-left: none !important; border-bottom: 2px solid var(--roxo-c) !important;
+        background: rgba(155,93,229,0.1) !important;
       }
-      .mi .ico { font-size: 1.25rem; width: auto; }
-      .sb-foot { display: none; }
+      .mi .ico { font-size: 1.2rem !important; width: auto !important; }
+      .sb-foot { display: none !important; }
 
-      /* Espaço para não ficar atrás da barra */
-      .conteudo { margin-left: 0; padding: 1rem 1rem 5.5rem; min-height: 100vh; }
+      /* Conteúdo — margem embaixo para não ficar atrás da barra */
+      .conteudo { margin-left: 0 !important; padding: 1rem 1rem 5rem !important; min-height: 100vh; }
 
       /* ── PÁGINA HEADER ── */
       .ph { margin-bottom: 1.2rem; }
